@@ -20,31 +20,31 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from customCallBack import PlotLearning
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+#print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 ###############################################################################
 #import training dataset
-train = pd.read_csv('datasets/train.csv', dtype = str)
+train = pd.read_csv('datasets/validation.csv', dtype = str)
 train = train.astype('float64')
 X = np.array(train[['Depth', 'lat', 'lng', 'bathymetry']].copy())
 Y = np.array(train[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
 X, Y = shuffle(X, Y)
 
-#import test datasets
-test = pd.read_csv('datasets/test.csv', dtype = str)
+#import validation datasets
+test = pd.read_csv('datasets/validation.csv', dtype = str)
 test = test.astype('float64')
-tX = np.array(test[['Depth', 'lat', 'lng', 'bathymetry']].copy()) # X input for testing dataset
-tY = np.array(test[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
+vX = np.array(test[['Depth', 'lat', 'lng', 'bathymetry']].copy()) # X input for testing dataset
+vY = np.array(test[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
 ###############################################################################
 
 # %% X and Y are scaled as per their independent
 scalarX = MinMaxScaler(feature_range=(0,1))
 X  = scalarX.fit_transform(X)
-tX = scalarX.transform(tX)
+vX = scalarX.transform(vX)
 
 #scale tY wrt input Y matrix
 scalarY = MinMaxScaler(feature_range=(0, 1))
 Y = scalarY.fit_transform(Y)
-tY = scalarY.transform(tY)
+vY = scalarY.transform(vY)
 ###############################################################################
 #training data
 # divide all the inputs into seperate vectors
@@ -57,13 +57,13 @@ Y1 = Y[:, 0]       #qc
 Y2 = Y[:, 1]       #fs
 
 #testing data
-tX1 = tX[:, 0]       #depth
-tX2 = tX[:, 1]       #lat
-tX3 = tX[:, 2]       #lng
-tX4 = tX[:, 3]       #bathy
+vX1 = vX[:, 0]       #depth
+vX2 = vX[:, 1]       #lat
+vX3 = vX[:, 2]       #lng
+vX4 = vX[:, 3]       #bathy
 
-tY1 = tY[:, 0]       #qc
-tY2 = tY[:, 1]       #fs
+vY1 = vY[:, 0]       #qc
+vY2 = vY[:, 1]       #fs
 
 ###############################################################################
 #create the 4 different inputs that will feed into the model
@@ -77,7 +77,7 @@ input4 = keras.Input(shape=(1, ), name = 'bathymetry')
 #merge the 4 inputs into one vector for matrix multiplication
 #2 hidden layers and one output layer
 merge = layers.Concatenate(axis=1)([input1, input2, input3, input4])
-l1 = layers.Dense(64, activation = 'relu')(merge)
+l1 = layers.Dense(128, activation = 'relu')(merge)
 l2 = layers.Dense(64, activation = 'relu')(l1)
 l3 = layers.Dense(32, activation = 'relu')(l2)
 l4 = layers.Dense(16, activation='relu')(l3)
@@ -103,17 +103,17 @@ model.compile(
     },
     metrics = ['mse']
 )
-model.summary()
+#model.summary()
 
 #create directory to save checkpoints
-checkpoint_path = "training_1/cp.ckpt"
+checkpoint_path = "model"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 #save weights at the end of each epoch
 batch_size = 64
 plt_callback = PlotLearning()
 model_save_callback = keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_filepath,
+    filepath=checkpoint_path,
     monitor='loss',
     mode='min',
     save_best_only=True, period = 10)
@@ -130,12 +130,12 @@ history = model.fit(
     'fs' : Y2
     },
     validation_data=({
-    'depth' : X1, 'lat' : X2, 'lng' : X3,
-    'bathymetry' : X4
+    'depth' : vX1, 'lat' : vX2, 'lng' : vX3,
+    'bathymetry' : vX4
     },
     {
-    'qc' : Y1,
-    'fs' : Y2
+    'qc' : vY1,
+    'fs' : vY2
     }),
     batch_size=batch_size, epochs = 20, verbose=2, shuffle=True,
     callbacks=[plt_callback, model_save_callback]
