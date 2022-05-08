@@ -24,28 +24,22 @@ from model_definition import model_definition
 #print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 ###############################################################################
 #import training dataset
-train = pd.read_csv('datasets/validation.csv', dtype = str)
+train = pd.read_csv('datasets/train.csv', dtype = str)
 train = train.astype('float64')
 X = np.array(train[['Depth', 'lat', 'lng', 'bathymetry']].copy())
 Y = np.array(train[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
 X, Y = shuffle(X, Y)
-
-#import validation datasets
-test = pd.read_csv('datasets/validation.csv', dtype = str)
-test = test.astype('float64')
-vX = np.array(test[['Depth', 'lat', 'lng', 'bathymetry']].copy()) # X input for testing dataset
-vY = np.array(test[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
 ###############################################################################
 
 # %% X and Y are scaled as per their independent
 scalarX = MinMaxScaler(feature_range=(0,1))
 X  = scalarX.fit_transform(X)
-vX = scalarX.transform(vX)
+
 
 #scale tY wrt input Y matrix
 scalarY = MinMaxScaler(feature_range=(0, 1))
 Y = scalarY.fit_transform(Y)
-vY = scalarY.transform(vY)
+
 ###############################################################################
 #training data
 # divide all the inputs into seperate vectors
@@ -57,14 +51,6 @@ X4 = X[:, 3]       #bathy
 Y1 = Y[:, 0]       #qc
 Y2 = Y[:, 1]       #fs
 
-#testing data
-vX1 = vX[:, 0]       #depth
-vX2 = vX[:, 1]       #lat
-vX3 = vX[:, 2]       #lng
-vX4 = vX[:, 3]       #bathy
-
-vY1 = vY[:, 0]       #qc
-vY2 = vY[:, 1]       #fs
 
 ###############################################################################
 #create the 4 different inputs that will feed into the model
@@ -88,7 +74,7 @@ for activation in activationFunc:
     for o in optim:
         for mod in model_def:
             #make output folder to house the model files
-            model_dir = r"{}_opt_{}_activation_{}/".format(
+            model_dir = r"Models/{}_opt_{}_activation_{}/".format(
                                          mod, o, activation)
             if not os.path.isdir(model_dir):
                 os.mkdir(model_dir)
@@ -148,14 +134,8 @@ for activation in activationFunc:
                 'qc' : Y1,
                 'fs' : Y2
                 },
-                validation_data=({
-                'depth' : vX1, 'lat' : vX2, 'lng' : vX3,
-                'bathymetry' : vX4
-                },
-                {
-                'qc' : vY1,
-                'fs' : vY2
-                }),
-                batch_size=batch_size, epochs = 20, verbose=1, shuffle=True,
+                validation_split = 0.1,
+
+                batch_size=batch_size, epochs = 1000, verbose=1, shuffle=True,
                 callbacks=[plt_callback, model_save_callback]
             )
