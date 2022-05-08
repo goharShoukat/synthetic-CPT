@@ -20,6 +20,7 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from customCallBack import PlotLearning
+from model_definition import model_definition
 #print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 ###############################################################################
 #import training dataset
@@ -72,71 +73,89 @@ input2 = keras.Input(shape=(1,), name = 'lat')
 input3 = keras.Input(shape = (1,), name = 'lng')
 input4 = keras.Input(shape=(1, ), name = 'bathymetry')
 
-
-
 #merge the 4 inputs into one vector for matrix multiplication
-#2 hidden layers and one output layer
-merge = layers.Concatenate(axis=1)([input1, input2, input3, input4])
-l1 = layers.Dense(128, activation = 'relu')(merge)
-l2 = layers.Dense(64, activation = 'relu')(l1)
-l3 = layers.Dense(32, activation = 'relu')(l2)
-l4 = layers.Dense(16, activation='relu')(l3)
-l5 = layers.Dense(5, activation='relu')(l4)
+merge = layers.Concatenate(axis = 1)([input1, input2, input3, input4])
 
-l2 = layers.Dropout(0.5)(l2)
 
-#create the 2 outputs for the last layer
-output1 = layers.Dense(1, activation='linear', name = 'qc')(l5) #qc
-output2 = layers.Dense(1, activation='linear', name = 'fs')(l5) #fs
+#list of nodes in the model.
 
-model = keras.Model(
-    inputs = [input1, input2, input3, input4],
-    outputs = [output1, output2]
-)
+#call the model_definition function which has 4 different models
+#the model also has optimizer information
+model_def = model_definition()['models']
+optim     = model_definition()['optimizers']
+activationFunc = ['LeakyReLU', 'relu', 'sigmoid']
+for activation in activationFunc:
+    for o in optim:
+        for mod in model_def:
+            #make output folder to house the model files
+            model_dir = r"{}_opt_{}_activation_{}/".format(
+                                         mod, o, activation)
+            if not os.path.isdir(model_dir):
+                os.mkdir(model_dir)
 
-#keras.utils.plot_model(model, "multi_input_and_output_model.png", show_shapes=True)
-model.compile(
-    optimizer = 'adam',
-    loss = {
-        'qc' : keras.losses.MeanSquaredError(),
-        'fs' : keras.losses.MeanSquaredError(),
-    },
-    metrics = ['mse']
-)
-#model.summary()
+            n_nodes = model_def[mod] #variable to extract array with layers
+            #implementation via for loops
+            for index, nodes in enumerate(n_nodes):
+                if index == 0:
+                    l = layers.Dense(nodes, activation=activation)(merge)
+                if index == 1 or index == 4:
+                    l = layers.Dropout(0.5)(l)
+                l = layers.Dense(nodes, activation=activation)(l)
 
-#create directory to save checkpoints
-checkpoint_path = "model"
-checkpoint_dir = os.path.dirname(checkpoint_path)
 
-#save weights at the end of each epoch
-batch_size = 64
-plt_callback = PlotLearning()
-model_save_callback = keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_path,
-    monitor='loss',
-    mode='min',
-    save_best_only=True, period = 10)
-#provides access to loss etc
-#can be accessed via different keys
-#history.keys()
-history = model.fit(
-    {
-    'depth' : X1, 'lat' : X2, 'lng' : X3,
-    'bathymetry' : X4
-    },
-    {
-    'qc' : Y1,
-    'fs' : Y2
-    },
-    validation_data=({
-    'depth' : vX1, 'lat' : vX2, 'lng' : vX3,
-    'bathymetry' : vX4
-    },
-    {
-    'qc' : vY1,
-    'fs' : vY2
-    }),
-    batch_size=batch_size, epochs = 20, verbose=2, shuffle=True,
-    callbacks=[plt_callback, model_save_callback]
-)
+
+            #create the 2 outputs for the last layer
+            output1 = layers.Dense(1, activation='linear', name = 'qc')(l) #qc
+            output2 = layers.Dense(1, activation='linear', name = 'fs')(l) #fs
+
+            model = keras.Model(
+                inputs = [input1, input2, input3, input4],
+                outputs = [output1, output2]
+            )
+
+            keras.utils.plot_model(model, model_dir + 'model.pdf', show_shapes=True)
+            model.compile(
+                optimizer = o,
+                loss = {
+                    'qc' : keras.losses.MeanSquaredError(),
+                    'fs' : keras.losses.MeanSquaredError(),
+                },
+                metrics = ['mse']
+            )
+            #model.summary()
+
+            #create directory to save checkpoints
+            checkpoint_path = model_dir
+
+
+            #save weights at the end of each epoch
+            batch_size = 64
+            plt_callback = PlotLearning(model_dir)
+            model_save_callback = keras.callbacks.ModelCheckpoint(
+                filepath=checkpoint_path,
+                monitor='loss',
+                mode='min',
+                save_best_only=True, period = 10)
+            #provides access to loss etc
+            #can be accessed via different keys
+            #history.keys()
+            history = model.fit(
+                {
+                'depth' : X1, 'lat' : X2, 'lng' : X3,
+                'bathymetry' : X4
+                },
+                {
+                'qc' : Y1,
+                'fs' : Y2
+                },
+                validation_data=({
+                'depth' : vX1, 'lat' : vX2, 'lng' : vX3,
+                'bathymetry' : vX4
+                },
+                {
+                'qc' : vY1,
+                'fs' : vY2
+                }),
+                batch_size=batch_size, epochs = 20, verbose=1, shuffle=True,
+                callbacks=[plt_callback, model_save_callback]
+            )

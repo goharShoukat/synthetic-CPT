@@ -22,6 +22,10 @@ class PlotLearning(keras.callbacks.Callback):
     """
     Callback to plot the learning curves of the model during training.
     """
+    def __init__(self, out_dir):
+        super(PlotLearning, self).__init__()
+        self.out_dir = out_dir
+
     def on_train_begin(self, logs={}):
         self.metrics = {}
         for metric in logs:
@@ -56,4 +60,4 @@ class PlotLearning(keras.callbacks.Callback):
             axs[i].grid()
 
         plt.tight_layout()
-        plt.savefig('output/loss_updater.pdf')
+        plt.savefig(self.out_dir + 'loss_updater.pdf')
