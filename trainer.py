@@ -12,6 +12,7 @@ Only to understand how to use tensorflow
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras import regularizers
 
 import os
 import pandas as pd
@@ -86,7 +87,10 @@ for activation in activationFunc:
                     l = layers.Dense(nodes, activation=activation)(merge)
                 if index == 1 or index == 4:
                     l = layers.Dropout(0.5)(l)
-                l = layers.Dense(nodes, activation=activation)(l)
+                l = layers.Dense(nodes, activation=activation,
+                kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4),
+                bias_regularizer=regularizers.L2(1e-4),
+                activity_regularizer=regularizers.L2(1e-5))(l)
 
 
 
@@ -106,7 +110,6 @@ for activation in activationFunc:
                     'qc' : keras.losses.MeanSquaredError(),
                     'fs' : keras.losses.MeanSquaredError(),
                 },
-                metrics = ['mse']
             )
             #model.summary()
 
@@ -136,6 +139,6 @@ for activation in activationFunc:
                 },
                 validation_split = 0.1,
 
-                batch_size=batch_size, epochs = 1000, verbose=1, shuffle=True,
+                batch_size=batch_size, epochs = 200, verbose=1, shuffle=True,
                 callbacks=[plt_callback, model_save_callback]
             )

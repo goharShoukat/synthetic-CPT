@@ -20,14 +20,18 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
-#model_save_location = 'training_1/model'
-model = tf.keras.models.load_model('model')
-outdir = 'output/model/'
-if not os.path.isdir(outdir):
-    os.mkdir(outdir)
 
-test = ['CPT_28.csv', 'CPT_05a.csv', 'CPT_02.csv', 'CPT_33.csv']
+model_dir = os.listdir('Models')
+model_dir.remove('.DS_Store') # remove hidden fiel from directory
+
 cols = ['Depth', 'Cone Resistance qc', 'Sleeve Friction fs']
+test_files = pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()
+
+test_data_dict = {} #cache all test file data in a 
+#load the cpt data for each test file
+data_dir = 'datasets/cpt_reformatted_datasets/'
+for file in test_files.test:
+    test_data_dict[file] = pd.read_csv(data_dir + file)
 
 #generate the MinMaxScaler from the trained data to fit this on to the testing
 #data. creating a new scalar would add discrepancies and false predictions
@@ -46,26 +50,35 @@ scalar_trainer_Y = MinMaxScaler(feature_range=(0,1))
 trainY = np.array(train[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
 trainY = scalar_trainer_Y.fit_transform(trainY)
 
-for file in test:
-    df = pd.read_csv('cpt_reformatted_datasets/' + file)
-    tX = np.array(df[['Depth', 'latitude', 'longitude', 'bathymetry']].copy())
-    tX = scalar_trainer_X.transform(tX)
-    tX1 = tX[:, 0]       #depth
-    tX2 = tX[:, 1]       #lat
-    tX3 = tX[:, 2]       #lng
-    tX4 = tX[:, 3]       #bathy
 
-    results = model.predict(
-    {
-    'depth' : tX1, 'lat' : tX2, 'lng' : tX3,
-    'bathymetry' : tX4
-    })
-    results = np.array(results)
-    results = np.transpose(results[:,:,0])
-    print(np.shape(results))
-    #rescale the test values as per the previous scalar_trainer_y
-    results = scalar_trainer_Y.inverse_transform(results)
-    df2 = pd.DataFrame({'depth' : df['Depth'] ,
-        'latitude' : df['latitude'], 'longitude' : df['longitude'],
-        'qc' : results[:,0], 'fs':results[:,1]})
-    df2.to_csv(outdir + 'reconstructed_{}.csv'.format(file[:-4]), index = False)
+#Each ml model in the output will have 5 files reconstructed
+for ml_model in model_dir:
+    model = tf.keras.models.load_model('Models/' + ml_model)
+    outdir = 'output/' + ml_model
+    if not os.path.isdir(outdir):
+        os.mkdir(outdir)
+        
+    for file in test_data_dict:
+        df = test_data_dict[file]
+        tX = np.array(df[['Depth', 'latitude', 'longitude', 'bathymetry']].copy())
+        tX = scalar_trainer_X.transform(tX)
+        tX1 = tX[:, 0]       #depth
+        tX2 = tX[:, 1]       #lat
+        tX3 = tX[:, 2]       #lng
+        tX4 = tX[:, 3]       #bathy
+    
+        results = model.predict(
+        {
+        'depth' : tX1, 'lat' : tX2, 'lng' : tX3,
+        'bathymetry' : tX4
+        })
+        results = np.array(results)
+        results = np.transpose(results[:,:,0])
+        #rescale the test values as per the previous scalar_trainer_y
+        results = scalar_trainer_Y.inverse_transform(results)
+        df2 = pd.DataFrame({'depth' : df['Depth'] ,
+            'latitude' : df['latitude'], 'longitude' : df['longitude'],
+            'qc' : results[:,0], 'fs':results[:,1]})
+        
+    
+        df2.to_csv(outdir + '/reconstructed_{}.csv'.format(file[:-4]), index = False)
