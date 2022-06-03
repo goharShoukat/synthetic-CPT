@@ -168,7 +168,7 @@ def cpt_and_map(df, col, location, directory):
     ax.plot(df['depth average'], df.Depth, linewidth = 0.5, alpha = 0.5, label = 'Global Average')
     ax.set_xlabel(r'Cone Resistance $q_c$')
     ax.set_ylabel(r'Depth (m)')
-    x = np.arange(0, 50, 5) # define the x to make ti the same for all cpts
+    x = np.arange(0, 50, 8) # define the x to make ti the same for all cpts
     y = np.arange(0, 35, 5)
     ax.set_xticks(x)
     ax.set_yticks(y)

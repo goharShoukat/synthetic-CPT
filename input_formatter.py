@@ -26,7 +26,6 @@ location['CPT'] = (['CPT_' + location for location in location.CPT])
 location.loc[21, 'CPT'] = 'CPT_05a'
 del tmp
 # %% file seperation
-#60 - 20 - 20 for train-validation-test split
 
 #60-40 split between
 train, test = train_test_split(files, test_size = 0.2, train_size=0.8) #split the data files into train, validate, test sets

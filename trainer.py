@@ -33,13 +33,13 @@ X, Y = shuffle(X, Y)
 ###############################################################################
 
 # %% X and Y are scaled as per their independent
-scalarX = MinMaxScaler(feature_range=(0,1))
-X  = scalarX.fit_transform(X)
+#scalarX = MinMaxScaler(feature_range=(0,1))
+#X  = scalarX.fit_transform(X)
 
 
 #scale tY wrt input Y matrix
-scalarY = MinMaxScaler(feature_range=(0, 1))
-Y = scalarY.fit_transform(Y)
+#scalarY = MinMaxScaler(feature_range=(0, 1))
+#Y = scalarY.fit_transform(Y)
 
 ###############################################################################
 #training data
@@ -69,13 +69,16 @@ merge = layers.Concatenate(axis = 1)([input1, input2, input3, input4])
 #call the model_definition function which has 4 different models
 #the model also has optimizer information
 model_def = model_definition()['models']
-optim     = model_definition()['optimizers']
-activationFunc = ['LeakyReLU', 'relu', 'sigmoid']
+#optim     = model_definition()['optimizers']
+optim = ['adam']
+#activationFunc = ['LeakyReLU', 'relu', 'sigmoid']
+activationFunc = ['LeakyReLU']
+
 for activation in activationFunc:
     for o in optim:
         for mod in model_def:
             #make output folder to house the model files
-            model_dir = r"Models/{}_opt_{}_activation_{}/".format(
+            model_dir = r"Models/Unscaled/{}_opt_{}_activation_{}/".format(
                                          mod, o, activation)
             if not os.path.isdir(model_dir):
                 os.mkdir(model_dir)
@@ -88,9 +91,9 @@ for activation in activationFunc:
                 if index == 1 or index == 4:
                     l = layers.Dropout(0.5)(l)
                 l = layers.Dense(nodes, activation=activation,
-                kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4),
-                bias_regularizer=regularizers.L2(1e-4),
-                activity_regularizer=regularizers.L2(1e-5))(l)
+                kernel_regularizer=regularizers.L1L2(l1=1e-8, l2=1e-7),
+                bias_regularizer=regularizers.L2(1e-8),
+                activity_regularizer=regularizers.L2(1e-9))(l)
 
 
 

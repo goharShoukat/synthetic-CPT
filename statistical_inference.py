@@ -75,6 +75,11 @@ plt.contour(X, Y, z)
 plt.colorbar()
 '''
 # %% Resample at fixed intervals. 
+# =============================================================================
+# 
+# Resampling done here 
+# 
+# =============================================================================
 cols = ['Depth', 'Cone Resistance qc']
 #read all the df into a cache
 dfs = {}
@@ -107,11 +112,29 @@ for i, f in enumerate(files[1:]):
 
 
 dff['depth average'] = np.mean(dff, axis = 1)
-plot_cpt(dff, col_name='CPT_01', avg_plot=True,
-         directory = 'output/plots/statistical comparison/')
+
+
+# =============================================================================
+# 
+# 
+# start plotting
+# 
+# 
+#
+# =============================================================================
+plot_cpt(dff, col_name='CPT_01', avg_plot=True, 
+        directory = 'output/plots/statistical comparison/')
 
 cluster_plot_cpt(dff, 'output/plots/statistical comparison/')
 cluster_cpt_and_location(dff, location = location, directory = 'output/plots/statistical comparison/Clusters/')
 df = dff
 for col in dff.columns[1:-1]: 
     cpt_and_map(dff, col, location, 'output/plots/statistical comparison/')
+    
+# =============================================================================
+#     
+# 
+# Statistical Calculations here
+# 
+# 
+# =============================================================================
