@@ -92,7 +92,7 @@ ocean110 = cartopy.feature.NaturalEarthFeature('physical', 'ocean', \
 ax.set_extent([-7, -4, 52, 54.5], ccrs.PlateCarree())
 ax.coastlines(resolution='10m')
 ax.gridlines(draw_labels=True, dms=False, x_inline=False, y_inline=False)
-ax.scatter(l['lng'], l.lat, marker='o', color='red', s = 2, zorder = 200, 
+ax.scatter(l['lng'], l.lat, marker='o', color='red', s = 10, zorder = 200, 
            transform= ccrs.PlateCarree(), label = 'Site Locations')
 ax.add_feature(ocean110)
 plt.legend()
@@ -102,8 +102,8 @@ axins = inset_axes(ax, width="40%", height="40%",
                    axes_class=cartopy.mpl.geoaxes.GeoAxes, 
                    axes_kwargs=dict(map_projection=ccrs.PlateCarree()),
                    bbox_to_anchor=(0.5,-0.5, 1, 1), bbox_transform=ax.transAxes)
-axins.set_extent([-6.1, -5.8, 53.5, 54], ccrs.PlateCarree())
-axins.scatter(l['lng'], l.lat, marker='o', color='red', s = 2, zorder = 200, 
+axins.set_extent([-6.05, -5.85, 53.64, 53.9], ccrs.PlateCarree())
+axins.scatter(l['lng'], l.lat, marker='o', color='red', s = 20, zorder = 200, 
            transform= ccrs.PlateCarree())
 axins.coastlines(resolution="10m")
 axins.add_feature(ocean110)
@@ -112,11 +112,11 @@ ax.indicate_inset_zoom(axins, edgecolor="black")
 mark_inset(ax, axins, loc1=1, loc2=3, fc="none", ec="0.5", ls = '--', lw = 0.5)
 scale_bar(ax, 20)
 scale_bar(axins, 2)
-axins.set_xticks([-6.1, -5.95, -5.8], crs=ccrs.PlateCarree())
+axins.set_xticks([-6.05, -5.85], crs=ccrs.PlateCarree())
 lon_formatter = LongitudeFormatter(zero_direction_label=True)
 axins.xaxis.set_major_formatter(lon_formatter)
 
-axins.set_yticks([53.5, 53.6, 53.7, 53.8, 53.9, 54], crs=ccrs.PlateCarree())
+axins.set_yticks([53.64, 53.9], crs=ccrs.PlateCarree())
 lat_formatter = LatitudeFormatter()
 axins.yaxis.set_major_formatter(lat_formatter)
 
@@ -136,4 +136,5 @@ imagebox.image.axes = ax
 ab = AnnotationBbox(imagebox, [ lon, lat], pad=0, frameon=False)
 ax.add_artist(ab)
 plt.show()
-plt.savefig('map.pdf')
+plt.savefig('map.pdf', transparent=True)
+plt.savefig('map.png', dpi = 300, transparent=True)

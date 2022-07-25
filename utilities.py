@@ -147,15 +147,20 @@ def cluster_cpt_and_location(df, directory, location):
             axins.scatter(lng, lat, marker='o', color='red', s = 2, zorder = 200, 
                        transform= ccrs.PlateCarree(), label = 'Site Locations')
             axins.scatter(lng[i, j], lat[i, j], marker = 'x', color = 'black',
-                          zorder = 200)
+                          zorder = 200, label = 'Specific Site')
     
     axs[0 , 0].invert_yaxis()#only invert once, otherwise even number of inversions cause original position
     fig.supxlabel('Cone Resistance qc')
     fig.supylabel('Depth')
     plt.tight_layout()
-    lines, labels = fig.axes[-1].get_legend_handles_labels()
+    lines, labels = fig.axes[0].get_legend_handles_labels()
     fig.legend(lines, labels, loc = 'lower right')
+    lines, labels = fig.axes[-1].get_legend_handles_labels()
+    fig.legend(lines, labels, bbox_to_anchor=(0.85, 0.075))
+    #lines_labels = axs[1, 1].get_legend_handles_labels()
+    #fig.legend(lines, labels, loc = 'upper right')
     plt.savefig(directory + '/cpt_cluster_and_map.pdf')
+    plt.savefig(directory + '/cpt_cluster_and_map.png', dpi = 300, transparent=True)
 
 
 def cpt_and_map(df, col, location, directory):
@@ -206,5 +211,6 @@ def cpt_and_map(df, col, location, directory):
                   location[location['CPT']==col]['lat'].iloc[0],
                   marker = 'x', color = 'black',
                   zorder = 200)
-    plt.savefig(directory + col +'_cpt_and_map.pdf')
+    #plt.savefig(directory + col +'_cpt_and_map.pdf')
+    plt.savefig(directory + col +'_cpt_and_map.png', dpi = 360, transparent=True)
     plt.close()

@@ -14,7 +14,10 @@ import numpy as np
 from glob import glob
 import matplotlib.pyplot as plt
 from utilities import plot_cpt, cluster_plot_cpt, cluster_cpt_and_location, cpt_and_map
-
+from matplotlib.cm import ScalarMappable
+from pylab import *
+from scipy.interpolate import griddata
+from scipy import interpolate
 direc = 'datasets/cpt_raw_data/'
 files = (glob(direc+ '*.csv'))
 files = np.sort([x.replace('datasets/cpt_raw_data/', '') for x in files])
@@ -30,50 +33,7 @@ del tmp
 
 files[0][:-4]
 
-'''
-cols = ['Depth', 'Cone Resistance qc', 'Sleeve Friction fs']
 
-#prepare training dataset
-train_df = pd.DataFrame()
-for f in files[:3]:
-    df = pd.read_csv(direc + f, skiprows=8, encoding = 'unicode_escape',
-                 skip_blank_lines=True, usecols = cols)
-    p_data = pd.read_csv(direc + f, encoding = 'unicode_escape', nrows = 6,
-                     header=None, index_col = [0], usecols = [0,1]) # point data for lat/lng and depth
-    df = df.dropna()
-
-    df['bathymetry'] = (np.ones(len(df)) * float(p_data.loc['Water Depth']))
-    df['lat'] = (np.ones(len(df)) * float(location[location['CPT'] == f[:-4]]['lat']))
-    df['lng'] = (np.ones(len(df)) * float(location[location['CPT'] == f[:-4]]['lng']))
-    train_df = train_df.append(df)
-    
-df1 = train_df.iloc[:(2947-1302)]
-df2 = train_df.iloc[(2947-1302):2947]
-df3 = train_df.iloc[(2947):]
-
-
-plt.plot(df3.Depth, df3['Cone Resistance qc'])
-plt.plot(df2.Depth, df2['Cone Resistance qc'])
-plt.plot(df1.Depth, df1['Cone Resistance qc'])
-
-x = [df1.lat.iloc[0], df2.lat.iloc[0], df3.lat.iloc[0]]
-y = np.linspace(pd.concat([df1.Depth, df2.Depth, df3.Depth]).min(), 
-                pd.concat([df1.Depth, df2.Depth, df3.Depth]).max(), 
-                1645)
-X, Y = np.meshgrid(x, y)
-
-
-temp1= np.empty((len(df1) - len(df2)))*np.nan
-d2 = np.append(df2['Cone Resistance qc'].to_numpy(), temp1)
-temp2 = np.empty(np.abs(len(df3)-len(df1))) * np.nan
-d3 = np.append(df3['Cone Resistance qc'].to_numpy(), temp2)
-
-z = (np.array([df1['Cone Resistance qc'].to_numpy(), d2, d3])).T
-
-fig = plt.figure()
-plt.contour(X, Y, z)
-plt.colorbar()
-'''
 # %% Resample at fixed intervals. 
 # =============================================================================
 # 
@@ -96,7 +56,7 @@ for f in files:
 dff = dfs[files[0]]
 names = list(location['CPT'])
 for i, f in enumerate(files[1:]):
-    print(i+2, f)
+    #print(i+2, f)
     #determine if the merge will be left or right.     
     if len(dff) > len(dfs[f]):
         #left merge if true
@@ -134,7 +94,81 @@ for col in dff.columns[1:-1]:
 # =============================================================================
 #     
 # 
-# Statistical Calculations here
+# Statistical interpolation
 # 
 # 
 # =============================================================================
+#dfs['CPT_01.csv']['lat'] = location[location['CPT']=='CPT_01']['lat'].iloc[0]
+#dfs['CPT_01.csv']['lng'] = location[location['CPT']=='CPT_01']['lng'].iloc[0]
+df1 = dff[['Depth', 'CPT_01']]
+df1['lat'] = location[location['CPT']=='CPT_01']['lat'].iloc[0]
+df1['lng'] = location[location['CPT']=='CPT_01']['lng'].iloc[0]
+
+
+df2 = dff[['Depth', 'CPT_02']]
+df2['lat'] = location[location['CPT']=='CPT_02']['lat'].iloc[0]
+df2['lng'] = location[location['CPT']=='CPT_02']['lng'].iloc[0]
+
+x = np.array(df1.Depth)
+y = [df1.lat.iloc[0], df2.lat.iloc[0]]
+X, Y = np.meshgrid(x, y)
+z = np.array((df1.CPT_01, df2.CPT_02))
+
+
+
+#matplotlib
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(X, Y, z)
+ax.set_xlabel('Depth')
+ax.set_ylabel('Latitude')
+ax.set_zlabel('qc')
+ax.set_title('CPT01 and CPT02 qc linear interpolation')
+plt.contourf(X, Y, z, zdir='z', alpha=1)
+plt.colorbar()
+# =============================================================================
+# contouring at each depth level 
+# 
+# =============================================================================
+x =  [df1.lat.iloc[0], df2.lat.iloc[0]] #latitude
+y = [df1.lng.iloc[0], df2.lng.iloc[0]]
+X, Y = np.meshgrid(x, y)
+Z = np.ones((2,2)) * np.nan
+Z[0, 0] = 0.041
+Z[1, 1] = 0.0642
+Z[0, 1] = 0.0525
+Z[1, 0] = 0.0525
+plt.contourf(X, Y, Z, zdir='z', alpha=1)
+plt.colorbar()
+# =============================================================================
+# 
+# =============================================================================
+x = np.array(location.lat)
+y = np.array(location.lng)
+lat, lng = np.meshgrid(x, y)
+Z = np.ones((24, 24)) * np.nan
+
+lat_search = np.where(x == location.lat.iloc[0])
+lng_search = np.where(y == location.lng.iloc[0])
+Z[lat_search, lng_search] = dff[dff['Depth']==0.01]['CPT_01'].iloc[0]
+
+for i, col in zip(range(24), dff.columns[1:-1]):
+    lat_search = np.where(x==location.lat.iloc[i])
+    lng_search = np.where(y==location.lng.iloc[i])
+    Z[lat_search, lng_search] = dff[dff['Depth'] == 0.01][col].iloc[0]
+
+
+plt.scatter(lng, lat, c=Z, alpha=1, s=80)
+plt.xlabel(r'Longitude $^\circ$N')
+plt.ylabel(r'Latitude $^\circ$E')
+plt.grid()
+clb = plt.colorbar()
+clb.set_label('Cone Resistance qc', rotation = 90)
+plt.title('Cone Resistance at Depth = 0.01cm')
+
+
+fun = interpolate.interp2d(x, y, np.array(dff.loc[0][1:-1]))
+latnew = np.arange(np.min(x), np.max(x), 0.01)
+lngnew = np.arange(np.min(y), np.max(y), 0.01)
+Znew = fun(latnew, lngnew)
+plt.tricontour(x, y, np.array(dff.loc[0][1:-1]))

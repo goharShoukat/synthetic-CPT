@@ -11,10 +11,6 @@ plot loss and mse results
 """
 from tensorflow import keras
 import matplotlib.pyplot as plt
-
-import numpy as np
-from tensorflow import keras
-from matplotlib import pyplot as plt
 from IPython.display import clear_output
 
 #code from: https://medium.com/geekculture/how-to-plot-model-loss-while-training-in-tensorflow-9fa1a1875a5
