@@ -33,13 +33,13 @@ X, Y = shuffle(X, Y)
 ###############################################################################
 
 # %% X and Y are scaled as per their independent
-#scalarX = MinMaxScaler(feature_range=(0,1))
-#X  = scalarX.fit_transform(X)
+scalarX = MinMaxScaler(feature_range=(0,1))
+X  = scalarX.fit_transform(X)
 
 
 #scale tY wrt input Y matrix
-#scalarY = MinMaxScaler(feature_range=(0, 1))
-#Y = scalarY.fit_transform(Y)
+scalarY = MinMaxScaler(feature_range=(0, 1))
+Y = scalarY.fit_transform(Y)
 
 ###############################################################################
 #training data
@@ -69,26 +69,27 @@ merge = layers.Concatenate(axis = 1)([input1, input2, input3, input4])
 #call the model_definition function which has 4 different models
 #the model also has optimizer information
 model_def = model_definition()['models']
-#optim     = model_definition()['optimizers']
-optim = ['adam']
-#activationFunc = ['LeakyReLU', 'relu', 'sigmoid']
-activationFunc = ['LeakyReLU']
+optim     = model_definition()['optimizers']
+#optim = ['adam']
+#activationFunc = ['LeakyReLU']
+activationFunc = ['ReLU']
+attempt = 'Third' #quantifies the different tweaks made.
 
 for activation in activationFunc:
     for o in optim:
         for mod in model_def:
             #make output folder to house the model files
-            model_dir = r"Models/Unscaled/{}_opt_{}_activation_{}/".format(
-                                         mod, o, activation)
+            model_dir = r"Models/{} Attempt/Scaled/{}_opt_{}_activation_{}/".format(
+                                         attempt, mod, o, activation)
             if not os.path.isdir(model_dir):
-                os.mkdir(model_dir)
+                os.makedirs(model_dir)
 
             n_nodes = model_def[mod] #variable to extract array with layers
             #implementation via for loops
             for index, nodes in enumerate(n_nodes):
                 if index == 0:
                     l = layers.Dense(nodes, activation=activation)(merge)
-                if index == 1 or index == 4:
+                if index == 1 or index == 3 or index == 5 or index == 7:
                     l = layers.Dropout(0.5)(l)
                 l = layers.Dense(nodes, activation=activation,
                 kernel_regularizer=regularizers.L1L2(l1=1e-8, l2=1e-7),
@@ -114,7 +115,8 @@ for activation in activationFunc:
                     'fs' : keras.losses.MeanSquaredError(),
                 },
             )
-            #model.summary()
+
+            model.summary()
 
             #create directory to save checkpoints
             checkpoint_path = model_dir
@@ -142,6 +144,6 @@ for activation in activationFunc:
                 },
                 validation_split = 0.1,
 
-                batch_size=batch_size, epochs = 200, verbose=1, shuffle=True,
+                batch_size=batch_size, epochs = 800, verbose=1, shuffle=True,
                 callbacks=[plt_callback, model_save_callback]
             )

@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # %% read output from modelled data
 #and remove the unnecessary folders in the directory. 
 #first reconstruct results in test directory and then in the training dir
-reconst_model_test_dir = os.listdir('output/Model Evaluation/Second Attempt/test')
+reconst_model_test_dir = os.listdir('output/Model Evaluation/Third Attempt/test')
 if '.DS_Store' in reconst_model_test_dir:
    reconst_model_test_dir.remove('.DS_Store')
 
@@ -27,15 +27,15 @@ if '.DS_Store' in reconst_model_test_dir:
 test_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
 reconstructed = {}
 for path in reconst_model_test_dir:
-    files = os.listdir(r'output/Model Evaluation/Second Attempt/test/' + path)
+    files = os.listdir(r'output/Model Evaluation/Third Attempt/test/' + path)
     
     #create directory for the model output graphs for comparison
-    if not os.path.isdir(r'output/Model Evaluation/Second Attempt/test/' + path):
-        os.mkdir(r'output/Model Evaluation/Second Attempt/test/' + path)
+    if not os.path.isdir(r'output/Model Evaluation/Third Attempt/test/' + path):
+        os.mkdir(r'output/Model Evaluation/Third Attempt/test/' + path)
         
     reconstructed[path] = {} #created nested multi-layered dicts
     for file in files:    
-        df = pd.read_csv(r'output/Model Evaluation/Second Attempt/test/' + path + '/'+ file)
+        df = pd.read_csv(r'output/Model Evaluation/Third Attempt/test/' + path + '/'+ file)
         reconstructed[path][file] = df
 
 ###############################################################################
@@ -71,7 +71,7 @@ for test_file in test_files:
         #ax.set_title(file + '\n' + 'Lat: {}, Long: {}'.format(
         #    location.loc[location['CPT']==file[:-4], 'lat'].iloc[0],
         #    location.loc[location['CPT']==file[:-4], 'lng'].iloc[0]))
-        plt.savefig(r'output/Model Evaluation/Second Attempt/test/' + model + str(test_file[0][:-4]) + '.pdf')
+        plt.savefig(r'output/Model Evaluation/Third Attempt/test/' + model + str(test_file[0][:-4]) + '.pdf')
         plt.close()
         
 ###############################################################################
@@ -80,7 +80,7 @@ for test_file in test_files:
 #and remove the unnecessary folders in the directory. 
 #first reconstruct results in test directory and then in the training dir
 #same as above but for training data
-reconst_model_train_dir = os.listdir('output/Model Evaluation/Second Attempt/')
+reconst_model_train_dir = os.listdir('output/Model Evaluation/Third Attempt/')
 if '.DS_Store' in reconst_model_train_dir:
    reconst_model_train_dir.remove('.DS_Store')
 if 'test' in reconst_model_train_dir:
@@ -90,15 +90,15 @@ if 'test' in reconst_model_train_dir:
 train_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
 reconstructed = {}
 for path in reconst_model_train_dir:
-    files = os.listdir(r'output/Model Evaluation/Second Attempt/' + path)
+    files = os.listdir(r'output/Model Evaluation/Third Attempt/' + path)
     
     #create directory for the model output graphs for comparison
-    if not os.path.isdir(r'output/Model Evaluation/Second Attempt/' + path):
-        os.mkdir(r'output/Model Evaluation/Second Attempt/' + path)
+    if not os.path.isdir(r'output/Model Evaluation/Third Attempt/' + path):
+        os.mkdir(r'output/Model Evaluation/Third Attempt/' + path)
         
     reconstructed[path] = {} #created nested multi-layered dicts
     for file in files:    
-        df = pd.read_csv(r'output/Model Evaluation/Second Attempt/' + path + '/'+ file)
+        df = pd.read_csv(r'output/Model Evaluation/Third Attempt/' + path + '/'+ file)
         reconstructed[path][file] = df
 
 ###############################################################################
@@ -133,7 +133,7 @@ for orig_file in orig_files:
         #ax.set_title(file + '\n' + 'Lat: {}, Long: {}'.format(
         #    location.loc[location['CPT']==file[:-4], 'lat'].iloc[0],
         #    location.loc[location['CPT']==file[:-4], 'lng'].iloc[0]))
-        plt.savefig(r'output/Model Evaluation/Second Attempt/test/' + model + str(orig_file[:-4]) + '.pdf')
+        plt.savefig(r'output/Model Evaluation/Third Attempt/test/' + model + str(orig_file[:-4]) + '.pdf')
         plt.close()
         
 #%% plot for all the cpt profiles
