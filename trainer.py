@@ -71,9 +71,8 @@ merge = layers.Concatenate(axis = 1)([input1, input2, input3, input4])
 model_def = model_definition()['models']
 optim     = model_definition()['optimizers']
 #optim = ['adam']
-#activationFunc = ['LeakyReLU']
-activationFunc = ['ReLU']
-attempt = 'Third' #quantifies the different tweaks made.
+activationFunc = ['LeakyReLU']
+attempt = 'Sixth' #quantifies the different tweaks made.
 
 for activation in activationFunc:
     for o in optim:
@@ -89,12 +88,12 @@ for activation in activationFunc:
             for index, nodes in enumerate(n_nodes):
                 if index == 0:
                     l = layers.Dense(nodes, activation=activation)(merge)
-                if index == 1 or index == 3 or index == 5 or index == 7:
+                if index == 0 or index == 1 or index == 3 or index == 5 or index == 7:
                     l = layers.Dropout(0.5)(l)
                 l = layers.Dense(nodes, activation=activation,
-                kernel_regularizer=regularizers.L1L2(l1=1e-8, l2=1e-7),
-                bias_regularizer=regularizers.L2(1e-8),
-                activity_regularizer=regularizers.L2(1e-9))(l)
+                kernel_regularizer=regularizers.L1L2(l1=1e-6, l2=1e-6),
+                bias_regularizer=regularizers.L1(1e-6),
+                activity_regularizer=regularizers.L1(1e-6))(l)
 
 
 
