@@ -87,7 +87,7 @@ for f in files:
     ax.plot(qc_pred,x, label = 'filtered')
     ax.set_xlabel(r'Cone Resistance $q_c$')
     ax.set_ylabel(r'Depth (m)')
-       
+        
     ax.invert_yaxis()
     ax.xaxis.set_label_position('top')
     ax.xaxis.tick_top()
@@ -104,7 +104,7 @@ for f in files:
     ax.plot(fs_pred,x, label = 'filtered')
     ax.set_xlabel(r'Sleeve Friction $f_s$')
     ax.set_ylabel(r'Depth (m)')
-       
+        
     ax.invert_yaxis()
     ax.xaxis.set_label_position('top')
     ax.xaxis.tick_top()
@@ -120,3 +120,50 @@ for f in files:
     df['Sleeve Friction fs'] = fs_pred
     f = f.replace("datasets/cpt_reformatted_datasets/", "datasets/cpt_filtered_datasets/")
     df.to_csv(f)
+    
+# =============================================================================
+# adjust the smoothing factor for cpt 10 and 11 to get better fits 
+# =============================================================================
+df = pd.read_csv(files[9])
+df = df.iloc[:760]
+x = np.linspace(np.min(df.Depth), np.max(df.Depth), len(df))
+qc_pred = csaps(df.Depth, df['Cone Resistance qc'], x, smooth=(.1))
+fs_pred = csaps(df.Depth, df['Sleeve Friction fs'], x, smooth=(0.1))
+fig, ax = plt.subplots(figsize = (30,30))
+ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
+ax.plot(qc_pred,x, label = 'filtered')
+ax.set_xlabel(r'Cone Resistance $q_c$')
+ax.set_ylabel(r'Depth (m)')
+    
+ax.invert_yaxis()
+ax.xaxis.set_label_position('top')
+ax.xaxis.tick_top()
+ax.grid()
+ax.legend(loc='upper center',
+          ncol=6)    
+ax.set_title(f)
+plt.show()
+
+fig, ax = plt.subplots(figsize = (30,30))
+
+ax.plot(df['Sleeve Friction fs'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
+ax.plot(fs_pred, x , label = 'filtered')
+ax.set_xlabel(r'Sleeve Friction $f_s$')
+ax.set_ylabel(r'Depth (m)')
+
+ax.invert_yaxis()
+ax.xaxis.set_label_position('top')
+ax.xaxis.tick_top()
+ax.grid()
+ax.legend(loc='upper center',
+          ncol=6)    
+ax.set_title(f)
+plt.show()
+
+
+
+df['Cone Resistance qc'] = qc_pred
+df['Sleeve Friction fs'] = fs_pred
+f = files[9]
+f = f.replace("datasets/cpt_reformatted_datasets/", "datasets/cpt_filtered_datasets/")
+df.to_csv(f)

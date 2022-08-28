@@ -34,11 +34,11 @@ def model_definition():
 
     model5 = [np.array((np.exp(6))).astype(int)]
 
-#    models = {'Model1' : model1, 'Model2' : model2,
-#               'Model3' : model3, 'Model4' : model4,
-#               'Model5' : model5}
-    models = {'Model4' : model4,
+    models = {'Model1' : model1, 'Model2' : model2,
+               'Model3' : model3, 'Model4' : model4,
                'Model5' : model5}
+#    models = {'Model4' : model4,
+#               'Model5' : model5}
 
     optimizers = ['adam']
     return {'models' : models, 'optimizers' : optimizers}

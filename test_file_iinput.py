@@ -24,6 +24,14 @@ for i in range(len(tmp)):
 location['CPT'] = (['CPT_' + location for location in location.CPT])
 location.loc[21, 'CPT'] = 'CPT_05a'
 
+
+
+
+bathyFilesDirec = 'datasets/cpt_raw_data/'
+bathyFiles = glob(bathyFilesDirec +'*.csv')
+bathyFiles = np.sort([x.replace('datasets/cpt_raw_data/', '') for x in files])
+
+
 cols = ['Depth', 'Cone Resistance qc', 'Sleeve Friction fs']
 outdir = 'datasets/cpt_reformatted_datasets/'
 
@@ -31,11 +39,13 @@ for file in files:
     df = pd.read_csv('datasets/cpt_raw_data/' + file, skiprows=8,
         encoding = 'unicode_escape', skip_blank_lines=True,
         usecols = cols).dropna()
-
+    p_data = pd.read_csv(bathyFilesDirec + file, encoding = 'unicode_escape', nrows = 6,
+                     header=None, index_col = [0], usecols = [0,1]) # point data for lat/lng and depth
+    
     df['latitude'] = pd.Series(np.ones(len(df)) *
                    location[location['CPT']==file[:-4]]['lat'].iloc[0])
 
     df['longitude'] = pd.Series(np.ones(len(df)) *
                 float(location[location['CPT']==file[:-4]]['lng'].iloc[0]))
-
+    df['bathymetry'] = float(p_data.loc['Water Depth', 1])
     df.to_csv(outdir + file, index = False)

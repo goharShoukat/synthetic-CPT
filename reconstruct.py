@@ -21,7 +21,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-model_dir = os.listdir(r'Models/Sixth Attempt/Scaled/')
+model_dir = os.listdir(r'Models/Seventh Attempt/Scaled/')
 if '.DS_Store' in model_dir:
     model_dir.remove('.DS_Store') # remove hidden fiel from directory
 
@@ -61,8 +61,8 @@ trainY = scalar_trainer_Y.fit_transform(trainY)
 
 #Each ml model in the output will have 5 files reconstructed
 for ml_model in model_dir:
-    model = tf.keras.models.load_model('/Users/goharshoukat/Documents/GitHub/synthetic-CPT/Models/Sixth Attempt/Scaled/' + ml_model)
-    outdir = r'output/Model Evaluation/Sixth Attempt/test/' + ml_model
+    model = tf.keras.models.load_model('/Users/goharshoukat/Documents/GitHub/synthetic-CPT/Models/Seventh Attempt/Scaled/' + ml_model)
+    outdir = r'output/Model Evaluation/Seventh Attempt/test/' + ml_model
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
 
@@ -118,7 +118,7 @@ for ml_model in model_dir:
             'qc' : results[:,0], 'fs':results[:,1]})
 
         #adjust the outdir for the training dataset
-        outdir = r'output/Model Evaluation/Sixth Attempt/' + ml_model
+        outdir = r'output/Model Evaluation/Seventh Attempt/' + ml_model
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
         df2.to_csv(outdir + '/reconstructed_{}.csv'.format(file[:-4]), index = False)
