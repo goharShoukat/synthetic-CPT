@@ -21,8 +21,8 @@ labels = list(string.ascii_uppercase)[:4]
 files_fil = sorted(os.listdir('datasets/cpt_filtered_datasets/'))
 files_raw = np.delete(np.array(sorted(os.listdir('datasets/cpt_reformatted_datasets/'))), 0)
 
-fil=pd.read_csv('datasets/cpt_filtered_datasets/' + files_fil[0], engine = 'python')
-raw=pd.read_csv('datasets/cpt_reformatted_datasets/' + files_raw[0], engine = 'c')
+fil=pd.read_csv('datasets/cpt_filtered_datasets/' + files_fil[7], engine = 'python')
+raw=pd.read_csv('datasets/cpt_reformatted_datasets/' + files_raw[7], engine = 'c')
 peaks = peakutils.indexes(raw['Cone Resistance qc'], thres=0.2, min_dist=10)
 
 

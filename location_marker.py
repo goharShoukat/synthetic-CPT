@@ -136,5 +136,5 @@ imagebox.image.axes = ax
 ab = AnnotationBbox(imagebox, [ lon, lat], pad=0, frameon=False)
 ax.add_artist(ab)
 plt.show()
-plt.savefig('map.pdf', transparent=True)
-plt.savefig('map.png', dpi = 300, transparent=True)
+plt.savefig('map2.pdf', transparent=True)
+plt.savefig('map2.png', dpi = 300, transparent=True)
