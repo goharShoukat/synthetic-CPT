@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 files = sorted(glob('datasets/cpt_reformatted_datasets_with_cutoff/*.csv'))
 # =============================================================================
 # 
-# df = pd.read_csv(files[0])
+df = pd.read_csv(files[0])
 # # =============================================================================
 # # FIlteration using zscores > 3
 # # =============================================================================
@@ -49,22 +49,24 @@ files = sorted(glob('datasets/cpt_reformatted_datasets_with_cutoff/*.csv'))
 # # =============================================================================
 # # kernel smoothing 
 # # =============================================================================
+# =============================================================================
 # from statsmodels.nonparametric.kernel_regression import KernelReg
 # 
 # x = np.linspace(np.min(df.Depth), np.max(df.Depth), 200)
 # 
 # 
 # 
-# kr = KernelReg(endog = df['Cone Resistance qc'], exog = df.Depth, var_type = ['c'])
+# kr = KernelReg(endog = df['Cone Resistance qc'], exog = df.Depth, var_type = ['c'], bw = 'aic')
 # y_pred, std = kr.fit(x)
 # 
-# fig, ax = plt.subplots(figsize = (30,30))
+# fig, ax = plt.subplots(figsize = (4.5, 10))
 # plt.plot
-# ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
-# ax.plot( y_pred,x, label = 'filtered')
-# ax.set_xlabel(r'Cone Resistance $q_c$')
-# ax.set_ylabel(r'Depth (m)')
-#    
+# ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'Raw')
+# ax.plot( y_pred,x, label = 'Smoothed')
+# 
+# ax.set_xlabel(r'Cone Resistance $q_c (kg/m^2)$')
+# ax.set_ylabel(r'Depth $(m)$')
+# ax.yaxis.labelpad = 0.05    
 # ax.invert_yaxis()
 # ax.xaxis.set_label_position('top')
 # ax.xaxis.tick_top()
@@ -73,6 +75,8 @@ files = sorted(glob('datasets/cpt_reformatted_datasets_with_cutoff/*.csv'))
 # plt.show()
 # ax.legend(loc='upper center',
 #           ncol=6)
+# plt.savefig('output/plots/kernel_smoothed.png', dpi = 600, transparent = True)
+# =============================================================================
 # =============================================================================
 # =============================================================================
 # plots
@@ -81,13 +85,13 @@ from csaps import csaps
 for f in files:
     df = pd.read_csv(f)
     x = np.linspace(np.min(df.Depth), np.max(df.Depth), len(df))
-    qc_pred = csaps(df.Depth, df['Cone Resistance qc'], x, smooth=(0.5))
+    qc_pred = csaps(df.Depth, df['Corrected Cone Resistance qt'], x, smooth=(0.5))
     fs_pred = csaps(df.Depth, df['Sleeve Friction fs'], x, smooth=(0.5))
     
     fig, ax = plt.subplots(figsize = (30,30))
-    ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
+    ax.plot(df['Corrected Cone Resistance qt'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
     ax.plot(qc_pred,x, label = 'filtered')
-    ax.set_xlabel(r'Cone Resistance $q_c$')
+    ax.set_xlabel(r'Corrected Cone Resistance $q_t$')
     ax.set_ylabel(r'Depth (m)')
         
     ax.invert_yaxis()
@@ -97,7 +101,7 @@ for f in files:
     ax.legend(loc='upper center',
               ncol=6)    
     ax.set_title(f)
-    plt.show()
+   # plt.show()
 
 
 
@@ -114,12 +118,12 @@ for f in files:
     ax.legend(loc='upper center',
               ncol=6)    
     ax.set_title(f)
-    plt.show()
+#    plt.show()
     
 
     
     
-    df['Cone Resistance qc'] = qc_pred
+    df['Corrected Cone Resistance qt'] = qc_pred
     df['Sleeve Friction fs'] = fs_pred
     f = f.replace("datasets/cpt_reformatted_datasets_with_cutoff/", "datasets/cpt_filtered_datasets/")
     df.to_csv(f)
@@ -133,9 +137,9 @@ x = np.linspace(np.min(df.Depth), np.max(df.Depth), len(df))
 qc_pred = csaps(df.Depth, df['Cone Resistance qc'], x, smooth=(.1))
 fs_pred = csaps(df.Depth, df['Sleeve Friction fs'], x, smooth=(0.1))
 fig, ax = plt.subplots(figsize = (30,30))
-ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
+ax.plot(df['Corrected Cone Resistance qt'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
 ax.plot(qc_pred,x, label = 'filtered')
-ax.set_xlabel(r'Cone Resistance $q_c$')
+ax.set_xlabel(r'Corrected Cone Resistance $q_t$')
 ax.set_ylabel(r'Depth (m)')
     
 ax.invert_yaxis()
@@ -144,7 +148,7 @@ ax.xaxis.tick_top()
 ax.grid()
 ax.legend(loc='upper center',
           ncol=6)    
-ax.set_title(f)
+ax.set_title(files[9])
 plt.show()
 
 fig, ax = plt.subplots(figsize = (30,30))
@@ -160,12 +164,12 @@ ax.xaxis.tick_top()
 ax.grid()
 ax.legend(loc='upper center',
           ncol=6)    
-ax.set_title(f)
+ax.set_title(files[9])
 plt.show()
 
 
 
-df['Cone Resistance qc'] = qc_pred
+df['Corrected Cone Resistance qt'] = qc_pred
 df['Sleeve Friction fs'] = fs_pred
 f = files[9]
 f = f.replace("datasets/cpt_reformatted_datasets_with_cutoff/", "datasets/cpt_filtered_datasets/")
@@ -175,13 +179,13 @@ df.to_csv(f)
 # =============================================================================
 df = pd.read_csv(files[7])
 x = np.linspace(np.min(df.Depth), np.max(df.Depth), len(df))
-qc_pred = csaps(df.Depth, df['Cone Resistance qc'], x, smooth=(0.5))
+qc_pred = csaps(df.Depth, df['Corrected Cone Resistance qt'], x, smooth=(0.5))
 fs_pred = csaps(df.Depth, df['Sleeve Friction fs'], x, smooth=(0.5))
 
 fig, ax = plt.subplots(figsize = (30,30))
-ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
+ax.plot(df['Corrected Cone Resistance qt'], df.Depth, linewidth = 1, alpha = 0.5, label = 'original')
 ax.plot(qc_pred,x, label = 'filtered')
-ax.set_xlabel(r'Cone Resistance $q_c$')
+ax.set_xlabel(r'Corrected Cone Resistance $q_t$')
 ax.set_ylabel(r'Depth (m)')
     
 ax.invert_yaxis()
@@ -190,7 +194,7 @@ ax.xaxis.tick_top()
 ax.grid()
 ax.legend(loc='upper center',
           ncol=6)    
-ax.set_title(f)
+ax.set_title(files[7])
 plt.show()
 
 
@@ -207,7 +211,7 @@ ax.xaxis.tick_top()
 ax.grid()
 ax.legend(loc='upper center',
           ncol=6)    
-ax.set_title(f)
+ax.set_title(files[7])
 plt.show()
 
 
@@ -215,5 +219,7 @@ plt.show()
 
 df['Cone Resistance qc'] = qc_pred
 df['Sleeve Friction fs'] = fs_pred
+f=files[7]
 f = f.replace("datasets/cpt_reformatted_datasets_with_cutoff/", "datasets/cpt_filtered_datasets/")
 df.to_csv(f)
+

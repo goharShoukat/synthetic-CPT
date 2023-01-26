@@ -72,7 +72,7 @@ model_def = model_definition()['models']
 optim     = model_definition()['optimizers']
 #optim = ['adam']
 activationFunc = ['LeakyReLU']
-attempt = 'Ninteen' #quantifies the different tweaks made.
+attempt = 'Thirteenth' #quantifies the different tweaks made.
 
 #for activation in activationFunc:
 #    for o in optim:
