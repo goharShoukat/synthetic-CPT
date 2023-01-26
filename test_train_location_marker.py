@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 17 11:22:32 2022
+Created on Fri Sep 16 21:44:29 2022
 
 @author: goharshoukat
+This script is used to plot the location of the testing and training datasets
 
-Script to plot the location of the CPT profiles
 """
+
 import pandas as pd
 import numpy as np
 l = pd.read_csv('location.csv', usecols=['CPT', 'lat', 'lng'])
 l['lat'] = l['lat'].astype(float)
 l['lng'] = l['lng'].astype(float)
 l['CPT'] = ['CPT_'+ x +'.csv' for x in l.CPT ]
+l.loc[1, 'CPT'] = 'CPT_02.csv'
+l.loc[6, 'CPT'] = 'CPT_09.csv'
+
 test = pd.read_csv('datasets/summary.csv', usecols = ['test']).dropna()
 train = pd.read_csv('datasets/summary.csv', usecols = ['train']).dropna()
 
@@ -20,9 +24,14 @@ l['class'] = np.nan
 for i in range(len(l)):
     if l.CPT[i] in str(test.test):
         l.loc[i, 'class'] = 'test'
-    else:
+    elif l.CPT[i] in str(train.train):
         l.loc[i, 'class'] = 'train'
+    else:
+        l.loc[i, 'class'] = 'reject'
     
+l_test = l[l['class'] == 'test'].reset_index(drop=True)
+l_train = l[l['class'] == 'train'].reset_index(drop=True)
+l_rejected = l[l['class'] == 'reject'].reset_index(drop=True)
 
 ##############################################################################
 ##############################################################################
@@ -32,6 +41,9 @@ for i in range(len(l)):
 #ploting using cartopy and axis
 
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.rc('xtick', labelsize=20) 
+matplotlib.rc('ytick', labelsize=20) 
 import cartopy.crs as ccrs
 import cartopy
 import cartopy.mpl.geoaxes
@@ -87,54 +99,58 @@ def scale_bar(ax, length=None, location=(0.5, 0.05), linewidth=3):
 
 plt.figure(figsize  = (30,30))
 ax = plt.axes(projection=ccrs.PlateCarree())
+ax.gridlines(draw_labels=False, dms=False, x_inline=False, y_inline=True)
 ocean110 = cartopy.feature.NaturalEarthFeature('physical', 'ocean', \
         scale='10m', edgecolor='none', facecolor=cartopy.feature.COLORS['water'])
-ax.set_extent([-7, -4, 52, 54.5], ccrs.PlateCarree())
+
 ax.coastlines(resolution='10m')
-ax.gridlines(draw_labels=True, dms=False, x_inline=False, y_inline=False)
-ax.scatter(l['lng'], l.lat, marker='o', color='red', s = 10, zorder = 200, 
-           transform= ccrs.PlateCarree(), label = 'Site Locations')
+ax.scatter(l_train['lng'], l_train.lat, marker='x', color='red', s = 200, zorder = 200, 
+           transform= ccrs.PlateCarree(), label = 'Train')
+ax.scatter(l_test['lng'], l_test.lat, marker='o', color='blue', s = 200, zorder = 200, 
+           transform= ccrs.PlateCarree(), label = 'Test')
+ax.scatter(l_rejected['lng'], l_rejected.lat, marker='+', color='green', s = 200, zorder = 200, 
+           transform= ccrs.PlateCarree(), label = 'Reject')
+
 ax.add_feature(ocean110)
-plt.legend()
+plt.legend(loc = 'upper left')
 #plt.savefig('output/plots/location_map.pdf')
 
-axins = inset_axes(ax, width="40%", height="40%", 
-                   axes_class=cartopy.mpl.geoaxes.GeoAxes, 
-                   axes_kwargs=dict(map_projection=ccrs.PlateCarree()),
-                   bbox_to_anchor=(0.5,-0.5, 1, 1), bbox_transform=ax.transAxes)
-axins.set_extent([-6.05, -5.85, 53.64, 53.9], ccrs.PlateCarree())
-axins.scatter(l['lng'], l.lat, marker='o', color='red', s = 20, zorder = 200, 
-           transform= ccrs.PlateCarree())
-axins.coastlines(resolution="10m")
-axins.add_feature(ocean110)
-axins.gridlines(draw_labels=False, dms=False, x_inline=False, y_inline=True)
-ax.indicate_inset_zoom(axins, edgecolor="black")
-mark_inset(ax, axins, loc1=1, loc2=3, fc="none", ec="0.5", ls = '--', lw = 0.5)
-scale_bar(ax, 20)
-scale_bar(axins, 2)
-axins.set_xticks([-6.05, -5.85], crs=ccrs.PlateCarree())
-lon_formatter = LongitudeFormatter(zero_direction_label=True)
-axins.xaxis.set_major_formatter(lon_formatter)
+ax.set_extent([-6.05, -5.85, 53.64, 53.9], ccrs.PlateCarree())
+scale_bar(ax, 2)
 
-axins.set_yticks([53.64, 53.9], crs=ccrs.PlateCarree())
+ax.set_xticks([-6.05, -6, -5.95, -5.9, -5.85], crs=ccrs.PlateCarree())
+lon_formatter = LongitudeFormatter(zero_direction_label=True)
+ax.xaxis.set_major_formatter(lon_formatter)
+
+ax.set_yticks([53.65, 53.7, 53.75, 53.8, 53.85, 53.9], crs=ccrs.PlateCarree())
 lat_formatter = LatitudeFormatter()
-axins.yaxis.set_major_formatter(lat_formatter)
+ax.yaxis.set_major_formatter(lat_formatter)
+
 
 stamen_terrain = cimgt.Stamen('terrain-background')
 ax.add_image(stamen_terrain, 8)
-axins.add_image(stamen_terrain, 8)
 # Read image
-lat = 52.1
-lon = -6.75
+lat = 53.67
+lon = -6.025
 img = Image.open('north.png')
 
 # Plot the map
 
-# Use `zoom` to control the size of the image
+# Use `zoom` to control the size of the image#
 imagebox = OffsetImage(img, zoom=0.05) 
 imagebox.image.axes = ax
 ab = AnnotationBbox(imagebox, [ lon, lat], pad=0, frameon=False)
 ax.add_artist(ab)
+
+
+#mark the location of the testing sites with alphabets
+alphaMarkers= ['A', 'B', 'C', 'D']
+for i in range(len(l_test)):
+    plt.annotate(alphaMarkers[i], (l_test.loc[i, 'lng'] + 0.005, l_test.loc[i, 'lat'] + 0.005), 
+                 fontsize = 15, zorder=200)
+
+plt.annotate('E', (l_train.loc[0, 'lng'] + 0.005, l_train.loc[0, 'lat'] + 0.005), 
+                 fontsize = 15, zorder=200)
+
 plt.show()
-plt.savefig('map2.pdf', transparent=True)
-plt.savefig('map2.png', dpi = 300, transparent=True)
+plt.savefig('test_train_marker.png', dpi = 350, transparent=True)

@@ -32,8 +32,8 @@ bathyFiles = glob(bathyFilesDirec +'*.csv')
 bathyFiles = np.sort([x.replace('datasets/cpt_raw_data/', '') for x in files])
 
 
-cols = ['Depth', 'Cone Resistance qc', 'Sleeve Friction fs']
-outdir = 'datasets/cpt_reformatted_datasets/'
+cols = ['Depth', 'Cone Resistance qc', 'Corrected Cone Resistance qt','Sleeve Friction fs']
+outdir = 'datasets/cpt_reformatted_datasets_untouched/'
 
 for file in files:
     df = pd.read_csv('datasets/cpt_raw_data/' + file, skiprows=8,

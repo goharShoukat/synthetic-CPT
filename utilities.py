@@ -22,6 +22,10 @@ from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter,
                                 LatitudeLocator, LongitudeLocator)
 import cartopy.io.img_tiles as cimgt
 import numpy as np
+import matplotlib
+font = {'size'   : 12}
+
+matplotlib.rc('font', **font)
 
 def plot_cpt(df, col_name,  directory, avg_plot : False):
     #Inputs
@@ -35,8 +39,8 @@ def plot_cpt(df, col_name,  directory, avg_plot : False):
     if avg_plot:
         ax.plot(df['depth average'], df.Depth, linewidth = 0.5, alpha = 0.5, label = 'Global Average')
     
-    ax.set_xlabel(r'Cone Resistance $q_c$')
-    ax.set_ylabel(r'Depth (m)')
+    ax.set_xlabel(r'Cone Resistance $q_c (kg/m^2)$')
+    ax.set_ylabel(r'Depth $(m)$')
     x = np.arange(0, 35, 5) # define the x to make ti the same for all cpts
     y = np.arange(0, 35, 5)
     ax.set_xticks(x)
@@ -168,13 +172,13 @@ def cpt_and_map(df, col, location, directory):
     #df : dataframe : dataframe with depth, cpt data and global average
     #location : dataframe : cpt name, lat and long
     #directory : str : output directory to save it
-    fig, ax = plt.subplots(figsize = (30,30))
-    ax.plot(df[col], df.Depth, linewidth = 0.5, alpha = 0.5, label = col)
-    ax.plot(df['depth average'], df.Depth, linewidth = 0.5, alpha = 0.5, label = 'Global Average')
-    ax.set_xlabel(r'Cone Resistance $q_c$')
-    ax.set_ylabel(r'Depth (m)')
-    x = np.arange(0, 50, 8) # define the x to make ti the same for all cpts
-    y = np.arange(0, 35, 5)
+    fig, ax = plt.subplots(figsize = (4.5,8))
+    ax.plot(df[col], df.Depth, linewidth = 2, alpha = 0.8, label = col)
+    ax.plot(df['depth average'], df.Depth, linewidth = 2, alpha = 0.5, label = 'Global Average')
+    ax.set_xlabel(r'Cone Resistance $q_c (MPa)$')
+    ax.set_ylabel(r'Depth $(m)$')
+    x = np.arange(0, 16, 2) # define the x to make ti the same for all cpts
+    y = np.arange(0, 28, 4)
     ax.set_xticks(x)
     ax.set_yticks(y)
     ax.invert_yaxis()
@@ -186,7 +190,7 @@ def cpt_and_map(df, col, location, directory):
     axins = inset_axes(ax, width="40%", height="40%", 
                        axes_class=cartopy.mpl.geoaxes.GeoAxes, 
                        axes_kwargs=dict(map_projection=ccrs.PlateCarree()),
-                       bbox_to_anchor=(0,0, 1, 1),
+                       bbox_to_anchor=(0,0, 0.9, 0.9),
                        bbox_transform=ax.transAxes)
     axins.set_extent([-6.05, -5.85, 53.65, 53.9], ccrs.PlateCarree())
     axins.coastlines(resolution="10m")
@@ -195,7 +199,7 @@ def cpt_and_map(df, col, location, directory):
     axins.add_feature(ocean110)
     axins.gridlines(draw_labels=False, dms=False, x_inline=False, y_inline=True,
                     color = 'gray')
-    axins.set_xticks([-6.05, -5.95, -5.85], crs=ccrs.PlateCarree())
+    axins.set_xticks([-6.05, -5.85], crs=ccrs.PlateCarree())
     lon_formatter = LongitudeFormatter(zero_direction_label=True)
     axins.xaxis.set_major_formatter(lon_formatter)
     
@@ -212,5 +216,6 @@ def cpt_and_map(df, col, location, directory):
                   marker = 'x', color = 'black',
                   zorder = 200)
     #plt.savefig(directory + col +'_cpt_and_map.pdf')
+    ax.yaxis.labelpad = 0.05
     plt.savefig(directory + col +'_cpt_and_map.png', dpi = 360, transparent=True)
     plt.close()
