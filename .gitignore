@@ -1,0 +1,11 @@
+/models
+.DS_Store
+*.csv
+*.pyc
+*.txt
+*.pdf
+*.png
+*.jpeg
+*.xlsx
+*.docx
+*.doc

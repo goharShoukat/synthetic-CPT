@@ -38,9 +38,9 @@ bathyFiles = np.sort([x.replace('datasets/cpt_raw_data/', '') for x in files])
 #80-20 split between
 #train, test = train_test_split(files, test_size = 0.2, train_size=0.8) #split the data files into train, validate, test sets
 train = np.array([files[-1], files[21], files[20], files[19], files[18], files[17],
-                  files[14], files[13], files[10], files[8], files[7], files[11], files[12],
-                  files[0], files[15]])
-test = np.array([files[22],  files[16], files[1], files[9]])
+                  files[14], files[10], files[8], files[7], files[11], files[12],
+                  files[0], files[15], files[1]])
+test = np.array([files[22],  files[16], files[9], files[13]])
 
 
 
@@ -51,7 +51,7 @@ def noise(signal, mu = 0, sigma = 0.1, factor = 1):
     n = np.random.normal(mu, sigma, len(signal)) # noise normal distribution
     return( signal + n * factor) #add noise to clean signal
 
-cols = ['Depth', 'Cone Resistance qc', 'Sleeve Friction fs']
+cols = ['Depth', 'Corrected Cone Resistance qt', 'Sleeve Friction fs']
 
 #prepare training dataset
 train_df = pd.DataFrame()
