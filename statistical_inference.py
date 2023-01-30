@@ -15,7 +15,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 from utilities import plot_cpt, cluster_plot_cpt, cluster_cpt_and_location, cpt_and_map
 from matplotlib.cm import ScalarMappable
-#from pylab import *
+from pylab import *
 from scipy.interpolate import griddata
 from scipy import interpolate
 direc = 'datasets/cpt_raw_data/'
