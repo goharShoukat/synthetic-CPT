@@ -28,7 +28,7 @@ from model_definition import model_definition
 train = pd.read_csv('datasets/train.csv', dtype = str)
 train = train.astype('float64')
 X = np.array(train[['Depth', 'lat', 'lng', 'bathymetry']].copy())
-Y = np.array(train[['Cone Resistance qc', 'Sleeve Friction fs']].copy())
+Y = np.array(train[['Smooth qt', 'Smooth fs']].copy())
 X, Y = shuffle(X, Y)
 ###############################################################################
 
@@ -72,7 +72,7 @@ model_def = model_definition()['models']
 optim     = model_definition()['optimizers']
 #optim = ['adam']
 activationFunc = ['LeakyReLU']
-attempt = 'Thirteenth' #quantifies the different tweaks made.
+attempt = 'Nineth' #quantifies the different tweaks made.
 
 #for activation in activationFunc:
 #    for o in optim:
@@ -87,11 +87,11 @@ for mod in model_def:
     #implementation via for loops
     for index, nodes in enumerate(n_nodes):
         if index == 0:
-            l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.1))(merge)
+            l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.2))(merge)
         #if index == 0 or index == 1 or index == 3 or index == 5 or index == 7:
         if index == 0 or index == 1:
             l = layers.Dropout(0.1)(l)
-        l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.1),
+        l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.2),
                          kernel_regularizer=regularizers.L1L2(l1=1e-6, l2=1e-6),
                 bias_regularizer=regularizers.L1(1e-6),
                 activity_regularizer=regularizers.L1(1e-6))(l)
@@ -101,7 +101,7 @@ for mod in model_def:
 
 
     #create the 2 outputs for the last layer
-    output1 = layers.Dense(1, activation='linear', name = 'qc')(l) #qc
+    output1 = layers.Dense(1, activation='linear', name = 'qt')(l) #qc
     output2 = layers.Dense(1, activation='linear', name = 'fs')(l) #fs
 
     model = keras.Model(
@@ -113,7 +113,7 @@ for mod in model_def:
     model.compile(
         optimizer = tf.keras.optimizers.Adam(),
         loss = {
-            'qc' : keras.losses.MeanSquaredError(),
+            'qt' : keras.losses.MeanSquaredError(),
             'fs' : keras.losses.MeanSquaredError(),
         },
     )
@@ -141,11 +141,11 @@ for mod in model_def:
         'bathymetry' : X4
         },
         {
-        'qc' : Y1,
+        'qt' : Y1,
         'fs' : Y2
         },
         validation_split = 0.1,
 
-        batch_size=batch_size, epochs = 200, verbose=1, shuffle=True,
+        batch_size=batch_size, epochs = 500, verbose=1, shuffle=True,
         callbacks=[plt_callback, model_save_callback]
     )
