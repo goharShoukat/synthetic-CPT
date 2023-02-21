@@ -55,14 +55,14 @@ files[0][:-4]
 # Resampling done here 
 # 
 # =============================================================================
-cols = ['Depth', 'Cone Resistance qc']
+cols = ['Depth', 'Corrected Cone Resistance qt']
 #read all the df into a cache
 dfs = {}
 for f in files:
     p = pd.read_csv(direc+f, skiprows=8, encoding = 'unicode_escape',
                  skip_blank_lines=True, usecols=cols).dropna()
     p['Depth'] = np.round(p['Depth'], 2)
-    p = p.rename(columns = {'Cone Resistance qc' : f[:-4]})
+    p = p.rename(columns = {'Corrected Cone Resistance qt' : f[:-4]})
     dfs[f] = p
 
 

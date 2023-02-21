@@ -30,7 +30,7 @@ peaks = peakutils.indexes(raw['Corrected Cone Resistance qt'], thres=0.2, min_di
 fig, ax = plt.subplots(figsize = (4.5,10))
 ax.plot(raw['Corrected Cone Resistance qt'], raw.Depth, linewidth = 1, alpha = 0.5, label = 'Raw')
 ax.plot(fil['Smooth qt'], fil.Depth, label = 'Smoothed')
-ax.plot(raw['Corrected Cone Resistance qt'][peaks], raw.Depth[peaks], marker = 'o', ls = "")
+#ax.plot(raw['Corrected Cone Resistance qt'][peaks], raw.Depth[peaks], marker = 'o', ls = "")
 
 ax.set_xlabel(r'Corrected Cone Resistance $q_t (MPa)$')
 ax.set_ylabel(r'Depth $(m)$')
@@ -42,7 +42,7 @@ ax.grid()
 ax.legend(loc='upper center',
           ncol=6)    
 #ax.set_title(f)
-ax.yaxis.set_label_coords(-0.1,0.5)
+ax.yaxis.set_label_coords(-0.08,0.5)
 xpoints = raw['Corrected Cone Resistance qt'][peaks]
 ypoints =  raw.Depth[peaks]
 for label, x, y in zip(labels, xpoints, ypoints):

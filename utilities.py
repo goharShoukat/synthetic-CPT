@@ -172,23 +172,14 @@ def cpt_and_map(df, col, location, directory):
     #df : dataframe : dataframe with depth, cpt data and global average
     #location : dataframe : cpt name, lat and long
     #directory : str : output directory to save it
-<<<<<<< HEAD
     fig, ax = plt.subplots(figsize = (4.5,8))
     ax.plot(df[col], df.Depth, linewidth = 2, alpha = 0.8, label = col)
     ax.plot(df['depth average'], df.Depth, linewidth = 2, alpha = 0.5, label = 'Global Average')
-    ax.set_xlabel(r'Cone Resistance $q_c (MPa)$')
+    ax.set_xlabel(r'Corrected Cone Resistance $q_t (MPa)$')
     ax.set_ylabel(r'Depth $(m)$')
     x = np.arange(0, 16, 2) # define the x to make ti the same for all cpts
     y = np.arange(0, 28, 4)
-=======
-    fig, ax = plt.subplots(figsize = (30,30))
-    ax.plot(df[col], df.Depth, linewidth = 0.5, alpha = 0.5, label = col)
-    ax.plot(df['depth average'], df.Depth, linewidth = 0.5, alpha = 0.5, label = 'Global Average')
-    ax.set_xlabel(r'Cone Resistance $q_c$')
-    ax.set_ylabel(r'Depth (m)')
-    x = np.arange(0, 50, 8) # define the x to make ti the same for all cpts
-    y = np.arange(0, 35, 5)
->>>>>>> parent of 132c5c3 (made changes to trainer algorithm.)
+    
     ax.set_xticks(x)
     ax.set_yticks(y)
     ax.invert_yaxis()

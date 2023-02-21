@@ -15,12 +15,15 @@ import os
 from glob import glob
 from scipy.stats import zscore
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+mpl.rcParams['font.size'] = 12
 files = sorted(glob('datasets/cpt_reformatted_datasets_untouched/*.csv'))
 
 # =============================================================================
 
 # 
-df = pd.read_csv(files[7])
+df = pd.read_csv(files[0])
 
 plt.plot(df['Corrected Cone Resistance qt'], df.Depth)
 # # =============================================================================
@@ -53,34 +56,32 @@ plt.plot(df['Corrected Cone Resistance qt'], df.Depth)
 # # =============================================================================
 # # kernel smoothing 
 # # =============================================================================
-# =============================================================================
-# from statsmodels.nonparametric.kernel_regression import KernelReg
-# 
-# x = np.linspace(np.min(df.Depth), np.max(df.Depth), 200)
-# 
-# 
-# 
-# kr = KernelReg(endog = df['Cone Resistance qc'], exog = df.Depth, var_type = ['c'], bw = 'aic')
-# y_pred, std = kr.fit(x)
-# 
-# fig, ax = plt.subplots(figsize = (4.5, 10))
-# plt.plot
-# ax.plot(df['Cone Resistance qc'], df.Depth, linewidth = 1, alpha = 0.5, label = 'Raw')
-# ax.plot( y_pred,x, label = 'Smoothed')
-# 
-# ax.set_xlabel(r'Cone Resistance $q_c (kg/m^2)$')
-# ax.set_ylabel(r'Depth $(m)$')
-# ax.yaxis.labelpad = 0.05    
-# ax.invert_yaxis()
-# ax.xaxis.set_label_position('top')
-# ax.xaxis.tick_top()
-# ax.grid()
-# 
-# plt.show()
-# ax.legend(loc='upper center',
-#           ncol=6)
-# plt.savefig('output/plots/kernel_smoothed.png', dpi = 600, transparent = True)
-# =============================================================================
+from statsmodels.nonparametric.kernel_regression import KernelReg
+
+x = np.linspace(np.min(df.Depth), np.max(df.Depth), 200)
+
+
+
+kr = KernelReg(endog = df['Corrected Cone Resistance qt'], exog = df.Depth, var_type = ['c'], bw = 'aic')
+y_pred, std = kr.fit(x)
+
+fig, ax = plt.subplots(figsize = (4.5, 10))
+plt.plot
+ax.plot(df['Corrected Cone Resistance qt'], df.Depth, linewidth = 1, alpha = 0.5, label = 'Raw')
+ax.plot( y_pred,x, label = 'Smoothed')
+
+ax.set_xlabel(r'Corrected Cone Resistance $q_t (MPa)$')
+ax.set_ylabel(r'Depth $(m)$')
+ax.yaxis.labelpad = 0.05    
+ax.invert_yaxis()
+ax.xaxis.set_label_position('top')
+ax.xaxis.tick_top()
+ax.grid()
+ax.yaxis.set_label_coords(-0.1,0.5)
+plt.show()
+ax.legend(loc='upper center',
+          ncol=6)
+plt.savefig('output/plots/kernel_smoothed.png', dpi = 600, transparent = True)
 # =============================================================================
 levels = np.linspace(0, 25, 6)
 interv = df['Cone Resistance qc'].groupby(pd.cut(df.Depth, bins = levels)).aggregate([np.mean, np.std])

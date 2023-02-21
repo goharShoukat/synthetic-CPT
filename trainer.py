@@ -5,7 +5,7 @@ Created on Thu Apr 28 10:31:30 2022
 
 @author: goharshoukat
 
-first model attempt
+Sixteenth model attempt
 
 Only to understand how to use tensorflow
 """
@@ -72,7 +72,7 @@ model_def = model_definition()['models']
 optim     = model_definition()['optimizers']
 #optim = ['adam']
 activationFunc = ['LeakyReLU']
-attempt = 'Nineth' #quantifies the different tweaks made.
+attempt = 'Sixteenth' #quantifies the different tweaks made.
 
 #for activation in activationFunc:
 #    for o in optim:
@@ -87,11 +87,11 @@ for mod in model_def:
     #implementation via for loops
     for index, nodes in enumerate(n_nodes):
         if index == 0:
-            l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.2))(merge)
+            l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.05))(merge)
         #if index == 0 or index == 1 or index == 3 or index == 5 or index == 7:
         if index == 0 or index == 1:
-            l = layers.Dropout(0.1)(l)
-        l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.2),
+            l = layers.Dropout(0.4)(l)
+        l = layers.Dense(nodes, activation=tf.keras.layers.LeakyReLU(alpha=0.05),
                          kernel_regularizer=regularizers.L1L2(l1=1e-6, l2=1e-6),
                 bias_regularizer=regularizers.L1(1e-6),
                 activity_regularizer=regularizers.L1(1e-6))(l)
@@ -146,6 +146,6 @@ for mod in model_def:
         },
         validation_split = 0.1,
 
-        batch_size=batch_size, epochs = 500, verbose=1, shuffle=True,
+        batch_size=batch_size, epochs = 300, verbose=1, shuffle=True,
         callbacks=[plt_callback, model_save_callback]
     )

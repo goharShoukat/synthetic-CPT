@@ -16,7 +16,7 @@ import pandas as pd
 
 import glob
 attempts = ['Eighteenth', 'Nineteenth', 'Twentieth', 'Twentyfirst']
-leaks = ['0.3', '0.1', '0.05']
+leaks = ['0.2', '0.1']
 models = np.arange(1, 6, 1).astype(str)
 depths = list(range(1, 10)[::2])[::-1]
 files = sorted(glob.glob('datasets/cpt_filtered_datasets/*.csv'))

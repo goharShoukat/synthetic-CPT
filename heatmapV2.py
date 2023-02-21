@@ -11,11 +11,12 @@ import glob
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-summary = pd.read_excel('models/attempt_summary.xlsx', usecols=['Slope', 'Dropout'])
+summary = pd.read_excel('hyperparameter_tuning.xlsx', usecols=['slope', 'dropout'])
 attempts = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 
-            'Nineth', 'Tenth', 'Eleventh', 'Twelveth', 'Thirteenth']
-dropouts  = summary['Dropout']
-slopes = summary['Slope']
+            'Nineth', 'Tenth', 'Eleventh', 'Twelfth', 'Thirteenth', 
+            'Fourteenth', 'Fifteenth', 'Sixteenth']
+dropouts  = summary['dropout']
+slopes = summary['slope']
 depths = np.array([1, 3, 5, 7, 9])
 models = np.arange(1, 6, 1).astype(str)[::-1]
 
@@ -50,7 +51,7 @@ for attempt, dropout, slope in zip(attempts, dropouts, slopes):
         
             reconsFile = pd.read_csv(reconsTrain1[i]).dropna()
             origFile = pd.read_csv(train[i])[:len(reconsFile)]
-            df.loc[i, 'MSE'] = mean_squared_error(origFile['Sleeve Friction fs'], reconsFile['fs'])
+            df.loc[i, 'MSE'] = mean_squared_error(origFile['Smooth qt'], reconsFile['qt'])
         trainMSE = pd.concat([trainMSE, df], axis = 0).reset_index(drop=True)
         avgTr['Avg MSE'] = df['MSE'].mean()
         avgTr[['depth', 'dropout', 'slope']] = depth, dropout, slope
@@ -66,7 +67,7 @@ for attempt, dropout, slope in zip(attempts, dropouts, slopes):
         
             reconsFile = pd.read_csv(reconsTest1[i]).dropna()
             origFile = pd.read_csv(test[i])[:len(reconsFile)]
-            df2.loc[i, 'MSE'] = mean_squared_error(origFile['Sleeve Friction fs'], reconsFile['qc'])
+            df2.loc[i, 'MSE'] = mean_squared_error(origFile['Smooth qt'], reconsFile['qt'])
         
         testMSE = pd.concat([testMSE, df2], axis = 0).reset_index(drop=True)
         avgTe['Avg MSE'] = df2['MSE'].mean()
@@ -80,18 +81,18 @@ import seaborn as sns
 plt.rcParams.update({'font.size': 10})
 
 dropouts = [0.1, 0.2, 0.3, 0.4][::-1]
-slopes = [0.1, 0.2, 0.3]
+slopes = [0.05, 0.1, 0.2, 0.3]
 De, Dr = np.meshgrid(np.float32(depths), np.float32(dropouts))
 Z_train = np.zeros(np.shape(De)) * np.nan
 Z_test = np.zeros(np.shape(De)) * np.nan
-f,(ax) = plt.subplots(1,4, gridspec_kw={'width_ratios':[1,1,1,0.08]}, figsize=(30,30))
+f,(ax) = plt.subplots(1,4, gridspec_kw={'width_ratios':[1,1,1,1]}, figsize=(30,30))
 for k in range(len(slopes)):
         df01 = trainAvg[trainAvg['slope']==slopes[k]]
         for i in range(len(dropouts)):
             for j in range(len(depths)):
         
                 Z_train[i, j] = df01[(df01['depth'] == depths[j]) & (df01['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]
-        #        Z_test[i, j]  = testAvg[(testAvg['depth'] == depths[j]) & (testAvg['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]   
+                #Z_test[i, j]  = testAvg[(testAvg['depth'] == depths[j]) & (testAvg['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]   
         #if k == len(slopes) - 1:
         cbarLogic = True
         '''
@@ -102,45 +103,51 @@ for k in range(len(slopes)):
                                  cbar_ax = ax[3])
         #else:
         '''
-        if k < 2:
-            cbarLogic = False
-            sTrain = sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
-                                     linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
-                                 square = True, vmax = 309, xticklabels=depths, 
-                                 yticklabels=dropouts, ax = ax[k], cbar= False)
-        if k == 2:
-            sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
-                                     linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
-                                     square = True, vmax = 309, xticklabels=depths, 
-                                     yticklabels=dropouts, ax = ax[k], cbar_ax = ax[3])
         
+        sTrain = sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
+                                     linewidths=0.5, annot=True, 
+                                 square = True, vmax = 0.5, xticklabels=depths, 
+                                 yticklabels=dropouts, ax = ax[k], cbar= False)
+# =============================================================================
+#         if k == 4:
+#             sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
+#                                      linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
+#                                      square = True, vmax = 0.5, xticklabels=depths, 
+#                                      yticklabels=dropouts, ax = ax[k],cbar=False)# cbar_ax = ax[3])
+#         
+# =============================================================================
         sTrain.set(ylabel='Dropout Probability', xlabel = 'Depth')
 
         ax[k].set_title('Slope = {}'.format(slopes[k]))
-ax[0].get_shared_y_axes().join(ax[1],ax[2])
+     
+ax[0].get_shared_y_axes().join(ax[1],ax[2], ax[3])
 ax[1].set_ylabel('')
 ax[1].set_yticks([])
 ax[2].set_ylabel('')
 ax[2].set_yticks([])
-plt.savefig('output/training-depth-dropout-fs.png', transparent = True, dpi = 500)
+ax[2].set_xlabel('Depth')
+ax[3].set_ylabel('')
+ax[3].set_yticks([])
+
+plt.savefig('output/plots/training-depth-dropout-qt.png', transparent = True, dpi = 500)
 
 # =============================================================================
 # plotting testing dataset for dropout against depth 
 # =============================================================================
 
 dropouts = [0.1, 0.2, 0.3, 0.4][::-1]
-slopes = [0.1, 0.2, 0.3]
+slopes = [0.05, 0.1, 0.2, 0.3]
 De, Dr = np.meshgrid(np.float32(depths), np.float32(dropouts))
 Z_train = np.zeros(np.shape(De)) * np.nan
 Z_test = np.zeros(np.shape(De)) * np.nan
-f,(ax) = plt.subplots(1,4, gridspec_kw={'width_ratios':[1,1,1,0.08]}, figsize=(30,30))
+f,(ax) = plt.subplots(1,4, gridspec_kw={'width_ratios':[1,1,1,1]}, figsize=(30,30))
 for k in range(len(slopes)):
         df01 = testAvg[testAvg['slope']==slopes[k]]
         for i in range(len(dropouts)):
             for j in range(len(depths)):
         
                 Z_train[i, j] = df01[(df01['depth'] == depths[j]) & (df01['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]
-        #        Z_test[i, j]  = testAvg[(testAvg['depth'] == depths[j]) & (testAvg['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]   
+                #Z_test[i, j]  = testAvg[(testAvg['depth'] == depths[j]) & (testAvg['dropout'] == dropouts[i])]['Avg MSE'].iloc[0]   
         #if k == len(slopes) - 1:
         cbarLogic = True
         '''
@@ -151,24 +158,29 @@ for k in range(len(slopes)):
                                  cbar_ax = ax[3])
         #else:
         '''
-        if k < 2:
-            cbarLogic = False
-            sTrain = sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
-                                     linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
-                                 square = True, vmax = 1570, xticklabels=depths, 
-                                 yticklabels=dropouts, ax = ax[k], cbar= False)
-        if k == 2:
-            sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
-                                     linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
-                                     square = True, vmax = 1570, xticklabels=depths, 
-                                     yticklabels=dropouts, ax = ax[k], cbar_ax = ax[3])
         
+        sTrain = sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
+                                     linewidths=0.5, annot=True, 
+                                 square = True, vmax = 0.5, xticklabels=depths, 
+                                 yticklabels=dropouts, ax = ax[k], cbar= False)
+# =============================================================================
+#         if k == 4:
+#             sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white', 
+#                                      linewidths=0.5, cbar_kws={'label': 'MSE'}, annot=True, 
+#                                      square = True, vmax = 0.5, xticklabels=depths, 
+#                                      yticklabels=dropouts, ax = ax[k],cbar=False)# cbar_ax = ax[3])
+#         
+# =============================================================================
         sTrain.set(ylabel='Dropout Probability', xlabel = 'Depth')
 
         ax[k].set_title('Slope = {}'.format(slopes[k]))
-ax[0].get_shared_y_axes().join(ax[1],ax[2])
+     
+ax[0].get_shared_y_axes().join(ax[1],ax[2], ax[3])
 ax[1].set_ylabel('')
 ax[1].set_yticks([])
 ax[2].set_ylabel('')
 ax[2].set_yticks([])
-plt.savefig('output/plots/test_depth_dropout-fs.png', transparent = True, dpi = 500)
+ax[2].set_xlabel('Depth')
+ax[3].set_ylabel('')
+ax[3].set_yticks([])
+plt.savefig('output/plots/test_depth_dropout-qt.png', transparent = True, dpi = 500)

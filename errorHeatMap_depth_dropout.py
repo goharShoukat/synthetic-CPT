@@ -15,19 +15,17 @@ import numpy as np
 import pandas as pd
 
 import glob
-#attempts = ['Twentythird', 'Twentyfourth', 'Twentyfifth']
-#dropouts = ['0.2', '0.3', '0.1']
 
 
-attempts = ['Twentyfifth', 'Twentythird', 'Twentyfourth', 'Twentysixth']
+attempts = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth', 'Eleventh', 'Twelfth']
 dropouts = ['0.1', '0.2', '0.3', '0.4']
 models = np.arange(1, 6, 1).astype(str)
 depths = list(range(1, 10)[::2])[::-1]
 files = sorted(glob.glob('datasets/cpt_filtered_datasets/*.csv'))
 train = sorted([files[-1], files[21], files[20], files[19], files[18], files[17],
-                  files[14], files[13], files[10], files[8], files[7], files[11], files[12],
-                  files[0], files[15]])
-test = sorted([files[22],  files[16], files[1], files[9]])
+                  files[14], files[10], files[8], files[7], files[11], files[12],
+                  files[0], files[15], files[1]])
+test = sorted([files[22],  files[16], files[9], files[13]])
 
 
 trainMSE = pd.DataFrame(columns = ['Attempt', 'Model', 'depth', 'dropout','Location', 'MSE'])
@@ -53,7 +51,7 @@ for attempt, dropout in zip(attempts, dropouts):
         
             reconsFile = pd.read_csv(reconsTrain1[i]).dropna()
             origFile = pd.read_csv(train[i])[:len(reconsFile)]
-            df.loc[i, 'MSE'] = mean_squared_error(origFile['Cone Resistance qc'], reconsFile['qc'])
+            df.loc[i, 'MSE'] = mean_squared_error(origFile['Smooth qt'], reconsFile['qt'])
         trainMSE = pd.concat([trainMSE, df], axis = 0).reset_index(drop=True)
         avgTr['Avg MSE'] = df['MSE'].mean()
         avgTr[['depth', 'dropout']] = depth, dropout
@@ -70,7 +68,7 @@ for attempt, dropout in zip(attempts, dropouts):
         
             reconsFile = pd.read_csv(reconsTest1[i]).dropna()
             origFile = pd.read_csv(test[i])[:len(reconsFile)]
-            df2.loc[i, 'MSE'] = mean_squared_error(origFile['Cone Resistance qc'], reconsFile['qc'])
+            df2.loc[i, 'MSE'] = mean_squared_error(origFile['Smooth qt'], reconsFile['qt'])
         
         testMSE = pd.concat([testMSE, df2], axis = 0).reset_index(drop=True)
         avgTe['Avg MSE'] = df2['MSE'].mean()
@@ -112,7 +110,7 @@ sTrain = sns.heatmap(Z_train, vmin = np.min(Z_train), linecolor='white',
 sTrain.set(ylabel='Dropout Probability', xlabel = 'Depth')
 #plt.title('a) Training Dataset')
 plt.savefig('output/plots/train_depth_dropout.png', dpi = 200)
-plt.close()
+#plt.close()
 
 #fig, ax = plt.subplots(1, figsize=(30,30))       
 sTest = sns.heatmap(Z_test, vmin = np.min(Z_test), linecolor='white', 

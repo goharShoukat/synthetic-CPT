@@ -21,7 +21,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-model_dir = os.listdir(r'Models/Nineth Attempt/Scaled/')
+model_dir = os.listdir(r'Models/Sixteenth Attempt/Scaled/')
 if '.DS_Store' in model_dir:
     model_dir.remove('.DS_Store') # remove hidden fiel from directory
 
@@ -32,7 +32,7 @@ train_files = pd.read_csv('datasets/summary.csv', usecols=['train'])
 test_data_dict = {} #cache all test file data in a
 train_data_dict = {} #added to validate performance on training data
 #load the cpt data for each test file
-data_dir = 'datasets/cpt_reformatted_datasets/'
+data_dir = 'datasets/cpt_filtered_datasets/'
 for file in test_files.test:
     test_data_dict[file] = pd.read_csv(data_dir + file)
 
@@ -61,8 +61,8 @@ trainY = scalar_trainer_Y.fit_transform(trainY)
 
 #Each ml model in the output will have 5 files reconstructed
 for ml_model in model_dir:
-    model = tf.keras.models.load_model('/Users/goharshoukat/Documents/GitHub/synthetic-CPT/Models/Nineth Attempt/Scaled/' + ml_model)
-    outdir = r'output/Model Evaluation/Nineth Attempt/test/' + ml_model
+    model = tf.keras.models.load_model('/Users/goharshoukat/Documents/GitHub/synthetic-CPT/Models/Sixteenth Attempt/Scaled/' + ml_model)
+    outdir = r'output/Model Evaluation/Sixteenth Attempt/test/' + ml_model
 
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
@@ -87,7 +87,7 @@ for ml_model in model_dir:
         results = scalar_trainer_Y.inverse_transform(results)
         df2 = pd.DataFrame({'depth' : df['Depth'] ,
             'latitude' : df['latitude'], 'longitude' : df['longitude'],
-            'qc' : results[:,0], 'fs':results[:,1]})
+            'qt' : results[:,0], 'fs':results[:,1]})
 
 
         df2.to_csv(outdir + '/reconstructed_{}.csv'.format(file[:-4]), index = False)
@@ -116,10 +116,10 @@ for ml_model in model_dir:
         results = scalar_trainer_Y.inverse_transform(results)
         df2 = pd.DataFrame({'depth' : df['Depth'] ,
             'latitude' : df['latitude'], 'longitude' : df['longitude'],
-            'qc' : results[:,0], 'fs':results[:,1]})
+            'qt' : results[:,0], 'fs':results[:,1]})
 
         #adjust the outdir for the training dataset
-        outdir = r'output/Model Evaluation/Nineth Attempt/' + ml_model
+        outdir = r'output/Model Evaluation/Sixteenth Attempt/' + ml_model
 
         if not os.path.isdir(outdir):
             os.mkdir(outdir)

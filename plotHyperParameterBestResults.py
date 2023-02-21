@@ -38,15 +38,12 @@ del tmp
 location.CPT = location.CPT + '.csv'
 
 
-plt.rcParams.update({'font.size': 17})
+plt.rcParams.update({'font.size': 15})
 ##############################################################################
-reconst_model_test_dir = os.listdir('output/Model Evaluation/Tenth Attempt/test')
-if '.DS_Store' in reconst_model_test_dir:
-    reconst_model_test_dir.remove('.DS_Store')
 # %% read output from modelled data
 #and remove the unnecessary folders in the directory.
-#Tenth reconstruct results in test directory and then in the training dir
-reconst_model_test_dir = os.listdir('output/Model Evaluation/Tenth Attempt/test')
+#Nineth reconstruct results in test directory and then in the training dir
+reconst_model_test_dir = os.listdir('output/Model Evaluation/Second Attempt/test')
 if '.DS_Store' in reconst_model_test_dir:
    reconst_model_test_dir.remove('.DS_Store')
 
@@ -54,23 +51,23 @@ if '.DS_Store' in reconst_model_test_dir:
 test_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
 reconstructed = {}
 for path in reconst_model_test_dir:
-    files = os.listdir(r'output/Model Evaluation/Tenth Attempt/test/' + path)
+    files = os.listdir(r'output/Model Evaluation/Second Attempt/test/' + path)
 
     #create directory for the model output graphs for comparison
-    if not os.path.isdir(r'output/Model Evaluation/Tenth Attempt/test/' + path):
-        os.mkdir(r'output/Model Evaluation/Tenth Attempt/test/' + path)
+    if not os.path.isdir(r'output/Model Evaluation/Second Attempt/test/' + path):
+        os.mkdir(r'output/Model Evaluation/Second Attempt/test/' + path)
 
     reconstructed[path] = {} #created nested multi-layered dicts
     for file in files:
-        df = pd.read_csv(r'output/Model Evaluation/Tenth Attempt/test/' + path + '/'+ file)
+        df = pd.read_csv(r'output/Model Evaluation/Second Attempt/test/' + path + '/'+ file)
         reconstructed[path][file] = df
 
 #select only models 3 and 4. the rest produce poor results 
 remove = (['Model1_opt_ADAM_activation_LeakyReLU', 'Model2_opt_ADAM_activation_LeakyReLU',
-                   'Model5_opt_ADAM_activation_LeakyReLU', 'Model4_opt_ADAM_activation_LeakyReLU'])
+                   'Model5_opt_ADAM_activation_LeakyReLU', 'Model3_opt_ADAM_activation_LeakyReLU'])
 reconstructedM1 = {key: reconstructed[key] for key in reconstructed if key not in remove}
 ###############################################################################
-reconst_model_test_dir = os.listdir('output/Model Evaluation/Nineth Attempt/test')
+reconst_model_test_dir = os.listdir('output/Model Evaluation/Sixth Attempt/test')
 if '.DS_Store' in reconst_model_test_dir:
    reconst_model_test_dir.remove('.DS_Store')
 
@@ -78,15 +75,15 @@ if '.DS_Store' in reconst_model_test_dir:
 test_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
 reconstructed = {}
 for path in reconst_model_test_dir:
-    files = os.listdir(r'output/Model Evaluation/Nineth Attempt/test/' + path)
+    files = os.listdir(r'output/Model Evaluation/Sixth Attempt/test/' + path)
 
     #create directory for the model output graphs for comparison
-    if not os.path.isdir(r'output/Model Evaluation/Nineth Attempt/test/' + path):
-        os.mkdir(r'output/Model Evaluation/Nineth Attempt/test/' + path)
+    if not os.path.isdir(r'output/Model Evaluation/Sixth Attempt/test/' + path):
+        os.mkdir(r'output/Model Evaluation/Sixth Attempt/test/' + path)
 
     reconstructed[path] = {} #created nested multi-layered dicts
     for file in files:
-        df = pd.read_csv(r'output/Model Evaluation/Nineth Attempt/test/' + path + '/'+ file)
+        df = pd.read_csv(r'output/Model Evaluation/Sixth Attempt/test/' + path + '/'+ file)
         reconstructed[path][file] = df
 
 #select only models 3 and 4. the rest produce poor results 
@@ -94,7 +91,65 @@ remove = (['Model1_opt_ADAM_activation_LeakyReLU', 'Model2_opt_ADAM_activation_L
                    'Model3_opt_ADAM_activation_LeakyReLU', 'Model5_opt_ADAM_activation_LeakyReLU'])
 reconstructedM2 = {key: reconstructed[key] for key in reconstructed if key not in remove}
 
-m1m2 = reconstructedM1 | reconstructedM2
+# =============================================================================
+# 
+# =============================================================================
+reconst_model_test_dir = os.listdir('output/Model Evaluation/Thirteenth Attempt/test')
+if '.DS_Store' in reconst_model_test_dir:
+   reconst_model_test_dir.remove('.DS_Store')
+
+
+test_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
+reconstructed = {}
+for path in reconst_model_test_dir:
+    files = os.listdir(r'output/Model Evaluation/Thirteenth Attempt/test/' + path)
+
+    #create directory for the model output graphs for comparison
+    if not os.path.isdir(r'output/Model Evaluation/Thirteenth Attempt/test/' + path):
+        os.mkdir(r'output/Model Evaluation/Thirteenth Attempt/test/' + path)
+
+    reconstructed[path] = {} #created nested multi-layered dicts
+    for file in files:
+        df = pd.read_csv(r'output/Model Evaluation/Thirteenth Attempt/test/' + path + '/'+ file)
+        reconstructed[path][file] = df
+
+#select only models 3 and 4. the rest produce poor results 
+remove = (['Model1_opt_ADAM_activation_LeakyReLU', 'Model2_opt_ADAM_activation_LeakyReLU',
+                   'Model4_opt_ADAM_activation_LeakyReLU'])
+reconstructedM3 = {key: reconstructed[key] for key in reconstructed if key not in remove}
+
+
+# =============================================================================
+# 
+# =============================================================================
+reconst_model_test_dir = os.listdir('output/Model Evaluation/Sixteenth Attempt/test')
+if '.DS_Store' in reconst_model_test_dir:
+   reconst_model_test_dir.remove('.DS_Store')
+
+
+test_files = np.sort(pd.read_csv('datasets/summary.csv', usecols=['test']).dropna()).astype(str)
+reconstructed = {}
+for path in reconst_model_test_dir:
+    files = os.listdir(r'output/Model Evaluation/Sixteenth Attempt/test/' + path)
+
+    #create directory for the model output graphs for comparison
+    if not os.path.isdir(r'output/Model Evaluation/Sixteenth Attempt/test/' + path):
+        os.mkdir(r'output/Model Evaluation/Sixteenth Attempt/test/' + path)
+
+    reconstructed[path] = {} #created nested multi-layered dicts
+    for file in files:
+        df = pd.read_csv(r'output/Model Evaluation/Sixteenth Attempt/test/' + path + '/'+ file)
+        reconstructed[path][file] = df
+
+#select only models 3 and 4. the rest produce poor results 
+remove = (['Model1_opt_ADAM_activation_LeakyReLU', 'Model2_opt_ADAM_activation_LeakyReLU',
+           'Model3_opt_ADAM_activation_LeakyReLU',
+                   'Model4_opt_ADAM_activation_LeakyReLU'])
+reconstructedM4 = {key: reconstructed[key] for key in reconstructed if key not in remove}
+
+##############################################################################
+
+r = reconstructedM1 | reconstructedM2 | reconstructedM3 | reconstructedM4
 
 
 
@@ -107,7 +162,7 @@ m1m2 = reconstructedM1 | reconstructedM2
 orig_direc = 'datasets/cpt_filtered_datasets/'
 orig_files = (glob(orig_direc+ '*.csv'))
 orig_files = np.sort([x.replace('datasets/cpt_filtered_datasets/', '') for x in orig_files])
-depth = ['M1', 'M2']
+depth = ['M1', 'M2', 'M3', 'M4']
 f,(ax) = plt.subplots(1,4, gridspec_kw={'width_ratios':[1,1,1,1]}, figsize=(30,30),
                       sharey = True)
 for test_file, i in zip(test_files, range(4)):
@@ -120,27 +175,28 @@ for test_file, i in zip(test_files, range(4)):
     #several models. a for loop to run through each of the models
     #create one plot. for each plot, plot the 5 models and compare results
 
-    for model, d in zip(m1m2, depth):
+    for model, d in zip(r, depth):
         #run a for loop to compare each of the test data files reconstructed
         #using the models
 
         df_rec = reconstructed[model]['reconstructed_' + test_file[0]]
-        ax[i].plot(df_rec['fs'], df_rec.depth, label = d)
+        ax[i].plot(df_rec['qt'], df_rec.depth, label = d)
 
     #ax[i].plot(df_orig['Cone Resistance qc'], df_orig.Depth, label = 'Original')
-    ax[i].plot(df_orig[r'Sleeve Friction fs'], df_orig.Depth, label = 'Original')
-    ax[i].set_xlabel(r'$f_s (kg/m^2)$')
+    ax[i].plot(df_orig[r'Smooth qt'], df_orig.Depth, label = 'Original')
+    ax[i].set_xlabel(r'$q_t (MPa)$')
     title = test_file[0][:-4].replace('CPT_', 'Site ')
     ax[i].set_title('{}'.format(title))
     ax[i].xaxis.set_label_position('top')
     ax[i].grid()
-    ax[i].set_xticks([0,25,50,75,100, 125])
+    ax[i].set_xticks([0, 1, 2, 3, 4])
+    #ax[i].set_xticks([0,25,50,75,100, 125, 150])
     ax[i].xaxis.tick_top()
 ax[0].invert_yaxis()
 ax[0].set_yticks([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22])
 
 ax[0].set_ylabel(r'Depth $(m)$')
-plt.legend(loc = "lower right")
+plt.legend(loc = "upper right")
 for test_file, i in zip(test_files, range(4)):
     
     axins = inset_axes(ax[i], width="40%", height="40%", 
@@ -176,5 +232,5 @@ for test_file, i in zip(test_files, range(4)):
     #ax.yaxis.labelpad = 0.05
     #ax[i].set_xlim([0,3])
 
-plt.savefig('output/plots/reconstruction.png', dpi = 500, transparent=True)
+plt.savefig('output/plots/reconstruction_qt.png', dpi = 500, transparent=True)
 
