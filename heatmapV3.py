@@ -42,14 +42,48 @@ model_dir = sorted(os.listdir(r'Models/Sixteenth Attempt/Scaled/'))
 if '.DS_Store' in model_dir:
     model_dir.remove('.DS_Store') # remove hidden fiel from directory
 
+#Test data
 df = pd.DataFrame()
-for ml_model, depth in zip(model_dir, depths):
-    model = r'output/Model Evaluation/Sixteenth Attempt/test/' + ml_model
+for slope, dropout, attempt in zip(slopes, dropouts, attempts):        
+    for ml_model, depth in zip(model_dir, depths):
+        model = r'output/Model Evaluation/{}/test/'.format(attempt) + ml_model
+        
+        for file in test_data_dict:
+            df2 = test_data_dict[file]
+            #rescale the test values as per the previous scalar_trainer
+            df2['Attempt'] = attempt
+            df2['model'] = ml_model
+            df2['depth'] = depth
+            df2['loc'] = file
+            df2['slope'] = slope
+            df2['dropout'] = dropout
+            df2['classification'] = 'test'
+            df = pd.concat([df, df2])
+df = df.reset_index(drop=True).drop(['Unnamed: 0'], axis=1)
+df.to_csv('output/Reconstructed Combined/test.csv')
+df1 = df #too combine with training later
 
-    for file in test_data_dict:
-        df2 = test_data_dict[file]
-        #rescale the test values as per the previous scalar_trainer
-        df2['model'] = ml_model
-        df2['depth'] = depth
-        df2['loc'] = file
-        df = pd.concat([df, df2])
+#training data
+df = pd.DataFrame()
+for slope, dropout, attempt in zip(slopes, dropouts, attempts):        
+    for ml_model, depth in zip(model_dir, depths):
+        model = r'output/Model Evaluation/{}/training/'.format(attempt) + ml_model
+        
+        for file in train_data_dict:
+            df2 = train_data_dict[file]
+            #rescale the test values as per the previous scalar_trainer
+            df2['Attempt'] = attempt
+            df2['model'] = ml_model
+            df2['depth'] = depth
+            df2['loc'] = file
+            df2['slope'] = slope
+            df2['dropout'] = dropout
+            df2['classification'] = 'train'
+            df = pd.concat([df, df2])
+df = df.reset_index(drop=True).drop(['Unnamed: 0'], axis=1)
+df.to_csv('output/Reconstructed Combined/train.csv')
+
+
+#combined test-training
+combined=pd.concat([df, df1])
+combined.to_csv('output/Reconstructed Combined/combined.csv')
