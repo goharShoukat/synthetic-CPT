@@ -46,11 +46,12 @@ if '.DS_Store' in model_dir:
 df = pd.DataFrame()
 for slope, dropout, attempt in zip(slopes, dropouts, attempts):        
     for ml_model, depth in zip(model_dir, depths):
-        model = r'output/Model Evaluation/{}/test/'.format(attempt) + ml_model
+        model = r'output/Model Evaluation/{} Attempt/test/'.format(attempt) + ml_model +'/reconstructed_'
         
         for file in test_data_dict:
-            df2 = test_data_dict[file]
-            #rescale the test values as per the previous scalar_trainer
+            df2 = pd.read_csv(model + file)
+            df2['true qt'] = test_data_dict[file]['Smooth qt']
+            df2['true fs'] = test_data_dict[file]['Smooth fs']
             df2['Attempt'] = attempt
             df2['model'] = ml_model
             df2['depth'] = depth
@@ -59,7 +60,7 @@ for slope, dropout, attempt in zip(slopes, dropouts, attempts):
             df2['dropout'] = dropout
             df2['classification'] = 'test'
             df = pd.concat([df, df2])
-df = df.reset_index(drop=True).drop(['Unnamed: 0'], axis=1)
+df = df.reset_index(drop=True)
 df.to_csv('output/Reconstructed Combined/test.csv')
 df1 = df #too combine with training later
 
@@ -67,11 +68,12 @@ df1 = df #too combine with training later
 df = pd.DataFrame()
 for slope, dropout, attempt in zip(slopes, dropouts, attempts):        
     for ml_model, depth in zip(model_dir, depths):
-        model = r'output/Model Evaluation/{}/training/'.format(attempt) + ml_model
+        model = r'output/Model Evaluation/{} Attempt/'.format(attempt) + ml_model +'/reconstructed_'
         
         for file in train_data_dict:
-            df2 = train_data_dict[file]
-            #rescale the test values as per the previous scalar_trainer
+            df2 = pd.read_csv(model + file)
+            df2['true qt'] = train_data_dict[file]['Smooth qt']
+            df2['true fs'] = train_data_dict[file]['Smooth fs']
             df2['Attempt'] = attempt
             df2['model'] = ml_model
             df2['depth'] = depth
@@ -80,7 +82,7 @@ for slope, dropout, attempt in zip(slopes, dropouts, attempts):
             df2['dropout'] = dropout
             df2['classification'] = 'train'
             df = pd.concat([df, df2])
-df = df.reset_index(drop=True).drop(['Unnamed: 0'], axis=1)
+df = df.reset_index(drop=True)
 df.to_csv('output/Reconstructed Combined/train.csv')
 
 
